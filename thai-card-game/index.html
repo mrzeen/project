@@ -89,7 +89,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 .slots{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;aspect-ratio:4/5.2;border-radius:10px;transition:background .2s;
   width:100%;margin-inline:auto;
   /* size the slots from the screen height so the whole battle fits on one phone screen */
-  --fixed:575px;  /* everything on screen except the two slot grids */
+  --fixed:592px;  /* everything on screen except the two slot grids */
   max-width:clamp(56px,calc((100vh - var(--fixed)) / 2.6),168px);max-width:clamp(56px,calc((100dvh - var(--fixed)) / 2.6),168px)}
 @media (min-width:600px){ .slots{--fixed:630px} }
 .slot{border-radius:7px;background:url(art/ui/slot.webp) center/100% 100% no-repeat;opacity:.42}
@@ -306,6 +306,25 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 .end-acts{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
 .end-acts .end-btn{margin:0}
 
+/* ---------- traps and signature moves ---------- */
+.mc.armed .cf{animation:trapglow 1.6s ease-in-out infinite}
+.mc.armed.mine .cf{filter:saturate(.5) brightness(.6)}
+.mc.armed.mine::before{content:"กับดัก";position:absolute;inset:auto 0 38% 0;z-index:6;text-align:center;font-size:.6rem;font-weight:700;color:#f1e6ff;text-shadow:0 1px 2px #000}
+@keyframes trapglow{50%{box-shadow:0 0 0 1.5px #b98cff,0 0 14px rgba(185,140,255,.8)}}
+.cf-karma.trapt{top:auto;bottom:22cqw;left:50%;transform:translateX(-50%);background:rgba(40,20,70,.9)}
+.tiprow{display:flex;gap:8px;align-items:stretch}
+.tiprow .tip{flex:1;min-width:0}
+.ultbtn{position:relative;flex:0 0 auto;width:58px;border-radius:14px;overflow:hidden;background-size:cover;background-position:center 18%;
+  box-shadow:0 0 0 1.5px var(--gold),0 6px 16px rgba(0,0,0,.5)}
+.ultbtn span{position:absolute;inset:auto 0 0 0;font-size:.62rem;font-weight:700;line-height:1.7;text-align:center;color:#fff;background:rgba(10,6,5,.78)}
+.ultbtn.ready{animation:readyglow 1.6s ease-in-out infinite}
+.ultbtn.picking,.ultbtn.armed{box-shadow:0 0 0 2px #fff,0 0 20px var(--gold-hi)}
+.ultbtn.locked,.ultbtn.used{filter:grayscale(1) brightness(.55);animation:none}
+.lane.ultpick{cursor:pointer;animation:slotglow 1.2s ease-in-out infinite}
+.lane.ultarmed{box-shadow:0 0 0 2px var(--gold-hi),0 0 26px rgba(246,220,150,.55)}
+.dult{font-size:.76rem!important;color:var(--ink)!important}
+.dult b{color:var(--gold-hi)}
+
 /* ---------- HP and strikes ---------- */
 .hpbar{position:relative;height:15px;min-width:74px;border-radius:999px;background:rgba(0,0,0,.55);box-shadow:0 0 0 1px rgba(246,220,150,.45);overflow:hidden;margin:3px 0 2px}
 .hpbar i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(180deg,#b6f08a,#3f9a3a);transition:width .5s cubic-bezier(.3,.8,.3,1)}
@@ -422,6 +441,13 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   .loc-rule{min-height:0}
   .tip{min-height:44px;padding:5px 12px}
 }
+@media (max-height:740px){
+  .hand{--cw:72px}
+  .loc{min-height:82px;padding:15px 4px 13px}
+  .loc-rule{font-size:.6rem;line-height:1.2}
+  .tip{min-height:40px;font-size:.8rem}
+  .app{gap:6px}
+}
 @media (max-width:440px){
   body{font-size:14px}
   .hud{padding:6px 8px}
@@ -469,7 +495,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 
   <main class="board" id="board"></main>
 
-  <div class="tip glass" id="tip"></div>
+  <div class="tiprow"><div class="tip glass" id="tip"></div><button class="ultbtn" id="btnUlt" type="button"></button></div>
   <div class="hand" id="hand"></div>
 
   <footer class="dock glass">
@@ -515,6 +541,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
       <div class="room-st" id="roomStatus" aria-live="polite"></div>
     </div>
     <p class="menu-msg" id="menuMsg" aria-live="polite"></p>
+    <button class="deck-row" id="mSound" type="button"><span class="deck-l">เสียง</span><b id="mSoundV"></b><span class="deck-go">สลับ</span></button>
     <p class="menu-note" id="netNote"></p>
   </div>
 </div>
@@ -550,7 +577,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <ol>
       <li>สนามมี <b>3 ภพ</b> สุ่มมาจาก 18 แห่ง แต่ละภพมีธาตุและกฎของตัวเอง</li>
-      <li>การ์ดมี 44 ใบ เด็คหนึ่งมี 12 ใบไม่ซ้ำกัน เลือก<b>เด็คสำเร็จรูป</b> 6 แนว <b>จัดเด็คเอง</b> หรือใช้เด็คสุ่มได้จากเมนู เมื่อเล่นกับ AI การ์ดของสองฝ่ายจะไม่ซ้ำกัน</li>
+      <li>การ์ดมี 51 ใบ เด็คหนึ่งมี 12 ใบไม่ซ้ำกัน เลือก<b>เด็คสำเร็จรูป</b> 7 แนว <b>จัดเด็คเอง</b> หรือใช้เด็คสุ่มได้จากเมนู เมื่อเล่นกับ AI การ์ดของสองฝ่ายจะไม่ซ้ำกัน</li>
       <li>การ์ดบางใบ<b>เรียกการ์ด</b>ลงสนาม (ผีพราย, ควายธนู, ลูกเงือก, เทวดา) การ์ดเรียกไม่อยู่ในเด็คและไม่มีราคา</li>
       <li>แต่ละฝ่ายมี<b>เลือด 25</b> เทิร์นที่ N ได้ <b>บุญ</b> N แต้มไว้ลงการ์ด บุญที่เหลือไม่สะสม</li>
       <li>แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการ ลงได้ภพละ 4 ใบ แตะการ์ดที่เพิ่งลงอีกครั้งเพื่อเก็บคืน</li>
@@ -559,6 +586,10 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
       <li>ใคร<b>เลือดหมดก่อนแพ้</b> ถ้าครบ 8 เทิร์นแล้วยังไม่มีใครล้ม ฝ่ายที่เลือดมากกว่าชนะ</li>
       <li><b>แรงฮึด:</b> ฝ่ายที่เลือดน้อยกว่าได้บุญ +1 ในเทิร์นถัดไป (+2 ถ้าตามหลัง 5 ขึ้นไป)</li>
     </ol>
+    <h3>กับดักและการเดาใจ</h3>
+    <p><b>กับดัก</b>ลงแล้วจะคว่ำอยู่ในภพ ไม่มีพลัง และทำงานกับการ์ดศัตรูใบถัดไปที่เปิดในภพนั้น ศัตรูเห็นแค่ว่ามีการ์ดคว่ำอยู่ ไม่รู้ว่าเป็นอะไร การ์ดบางใบได้ผลเมื่อเดาถูกว่าศัตรูจะลงหรือไม่ลงภพเดียวกันในเทิร์นนั้น</p>
+    <h3>ท่าไม้ตาย</h3>
+    <p>แต่ละเด็คมีท่าไม้ตาย ใช้ได้ครั้งเดียวต่อเกม ตั้งแต่เทิร์น ๓ กดปุ่มไม้ตายแล้วเลือกภพ ท่าจะทำงานตอนจบเทิร์นก่อนเปิดการ์ด</p>
     <h3>ธาตุ</h3>
     <p>การ์ดธาตุเดียวกับภพได้ +1 · การ์ดที่ธาตุของภพข่มอยู่ได้ −1<br>น้ำข่มไฟ · ไฟข่มลม · ลมข่มดิน · ดินข่มน้ำ</p>
     <h3>กรรม</h3>
@@ -682,6 +713,14 @@ const CARDS = [
   {id:'yanang', name:'แม่ย่านาง', cost:2, power:2, el:'water', text:'ต่อเนื่อง: การ์ดเรียกของเราทุกภพ +1', gaura:(o,c)=>c.owner===o.owner&&c.token?1:0},
   {id:'tani', name:'นางตานี', cost:3, power:2, el:'earth', dark:1, text:'เมื่อเปิด: เรียกผีพราย (พลัง 2) ลงภพอื่นภพละ 1 ตัว', reveal:c=>S.locs.forEach((L,li)=>{if(li!==c.loc) summon(c,TOKENS.phrai,li);})},
   {id:'ajarn', name:'อาจารย์ไสยเวท', cost:4, power:3, el:'fire', dark:1, text:'เมื่อเปิด: เสกควายธนู (พลัง 4) ลงภพนี้', reveal:c=>summon(c,TOKENS.kwaithanu,c.loc)},
+  // ---- ชุดกับดักและเดาใจ ----
+  {id:'yantrap', name:'ยันต์กันผี', cost:1, power:0, el:null, text:'กับดัก: การ์ดศัตรูใบถัดไปที่เปิดในภพนี้ ถ้าเป็นสายมืดถูกทำลาย ถ้าไม่ใช่ −2', trap:(t,c)=>{ if (c.dark) destroy(c); else buff(c,-2); }},
+  {id:'takrut', name:'ตะกรุด', cost:1, power:1, el:'earth', text:'เมื่อเปิด: เทิร์นนี้เราไม่โดนตีจากภพนี้', reveal:c=>{ S.shield.push({li:c.loc, side:c.owner, turn:S.turn}); FX.push({t:'shield', uid:c.uid}); }},
+  {id:'nakabat', name:'บ่วงนาคบาศ', cost:2, power:0, el:'water', text:'กับดัก: การ์ดศัตรูใบถัดไปที่เปิดในภพนี้ −5', trap:(t,c)=>buff(c,-5)},
+  {id:'lak', name:'พระลักษมณ์', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าเทิร์นนี้ศัตรูไม่ได้ลงการ์ดในภพนี้ ยิงศรตีเลือดศัตรู 3', reveal:c=>{ const o=OPP[c.owner]; if (!S.pending[o].some(x=>x.loc===c.loc)){ S.hp[o]-=3; FX.push({t:'hit', li:c.loc, loser:o, dmg:3}); } }},
+  {id:'nammon', name:'น้ำมนต์', cost:2, power:1, el:'water', text:'เมื่อเปิด: ฟื้นเลือดเรา 3', reveal:c=>heal(c.owner,3)},
+  {id:'lumphrang', name:'หลุมพราง', cost:3, power:0, el:'earth', text:'กับดัก: ทำลายการ์ดศัตรูใบถัดไปที่เปิดในภพนี้', trap:(t,c)=>destroy(c)},
+  {id:'suea', name:'เสือสมิง', cost:3, power:4, el:'earth', text:'เมื่อเปิด: ถ้าเทิร์นนี้ศัตรูลงการ์ดในภพนี้ด้วย ซุ่มโจมตี +4', reveal:c=>{ if (S.pending[OPP[c.owner]].some(x=>x.loc===c.loc)) buff(c,4); }},
 ];
 // summoned cards: not in any deck, appear on the board from an ability
 const TOKENS = {
@@ -725,10 +764,38 @@ function destroy(c){
   FX.push({t:'shatter', uid:c.uid}, {t:'shake'});
   toast(`${c.name}${c.owner==='p'?'ของเรา':'ของศัตรู'} ถูกทำลาย`);
 }
-function summon(src, def, li){
-  const L = S.locs[li]; if (L.cards[src.owner].length >= (L.cap||4)) return false;
-  const t = inst(def, src.owner); t.loc = li; t.revealed = true; L.cards[src.owner].push(t);
-  FX.push({t:'beam', src:src.uid, dst:t.uid, good:true}, {t:'summon', uid:t.uid});
+function summonFor(side, def, li, srcUid){
+  const L = S.locs[li]; if (L.cards[side].length >= (L.cap||4)) return false;
+  const t = inst(def, side); t.loc = li; t.revealed = true; L.cards[side].push(t);
+  if (srcUid) FX.push({t:'beam', src:srcUid, dst:t.uid, good:true});
+  FX.push({t:'summon', uid:t.uid});
+  return true;
+}
+const summon = (src, def, li) => summonFor(src.owner, def, li, src.uid);
+function heal(side, n){ S.hp[side] = Math.min(HP0, S.hp[side] + n); FX.push({t:'heal', side, n}); }
+// A face-down trap springs on the next enemy card revealed in its realm, then is spent.
+function springTrap(c){
+  const arr = locOf(c).cards[OPP[c.owner]], t = arr.find(x => x.armed);
+  if (!t) return;
+  arr.splice(arr.indexOf(t), 1);
+  FX.push({t:'spring', uid:t.uid});
+  toast(`กับดัก${t.name}ทำงาน!`);
+  ACTOR = t; t.trap(t, c); ACTOR = null;
+}
+// Rules for turning one played card face up. Returns false for a trap, which stays face down.
+function revealCard(c){
+  if (c.trap){ c.armed = true; FX.push({t:'arm', uid:c.uid}); return false; }
+  c.revealed = true; c.fx = 'flip';
+  FX.push({t:'burst', uid:c.uid});
+  for (const h of S.hex) if (h.li===c.loc && h.by!==c.owner && h.turn===S.turn) buff(c, -2);
+  springTrap(c);
+  if (locOf(c).cards[c.owner].includes(c)){
+    if (c.dark) addKarma(c.owner, c.dark*(locOf(c).karmaX??1));
+    ACTOR = c;
+    if (c.reveal) c.reveal(c);
+    if (locOf(c).onHere) locOf(c).onHere(c);
+    ACTOR = null;
+  }
   return true;
 }
 function moveCard(c, li){
@@ -772,9 +839,13 @@ function newGame(opts={}){
   const mk = ids => shuffle([...ids].sort().map(id => CARDS.find(c => c.id===id)));   // sorted first: same order on both screens
   const dk = opts.decks ? {p: mk(opts.decks.host), a: mk(opts.decks.guest)} : aiMatchDecks();
   const mine = MODE.role==='guest' ? dk.a : dk.p, theirs = MODE.role==='guest' ? dk.p : dk.a;   // host always gets the first deck
+  const ok = k => ULTS[k] ? k : 'rally';
+  const uk = opts.ults ? (MODE.role==='guest' ? {p:ok(opts.ults.guest), a:ok(opts.ults.host)} : {p:ok(opts.ults.host), a:ok(opts.ults.guest)})
+                       : {p: opts.decks ? 'rally' : myUltKind(), a: opts.decks ? 'rally' : aiUltKind};
   S = {turn:0, locs, deck:{p:mine.map(d=>inst(d,'p')), a:theirs.map(d=>inst(d,'a'))}, firstOdd: MODE.role==='guest' ? 'a' : 'p', hp:{p:HP0, a:HP0}, rally:{p:0,a:0},
        hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
-       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null};
+       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null, shield:[], hex:[], ultPick:false,
+       ult:{p:{kind:uk.p, used:false, armed:null}, a:{kind:uk.a, used:false, armed:null}}};
   for (let i=0;i<3;i++){ draw('p'); draw('a'); }
   $('#endModal').hidden = true; $('#inspect').hidden = true;
   startTurn();
@@ -802,6 +873,9 @@ function aiPlan(){
       if (c.el && L.el){ if (c.el===L.el) est++; else if (BEATS[L.el]===c.el) est--; }
       const foes = revealed(L.cards.p), mine = revealed(L.cards.a);
       if (c.id==='phosop' && L.el==='earth') est += 3;
+      if (c.trap) est += 3 + (foes.length ? 1 : 0);
+      if (c.id==='suea' && foes.length) est += 2; if (c.id==='lak') est += 1; if (c.id==='nammon' && S.hp.a<=HP0-3) est += 3;
+      if (c.id==='takrut' && sideTotal(L,'a') < sideTotal(L,'p')) est += 3;
       if (c.id==='shaman') est += 2; if (c.id==='tani') est += 3; if (c.id==='ajarn') est += 4;
       if (c.id==='pret') est -= 2*L.cards.a.length;
       if (c.id==='indra' && foes.length) est += Math.max(...foes.map(power));
@@ -864,22 +938,26 @@ async function endTurn(){
       S.hand.a.splice(S.hand.a.indexOf(c),1);
       c.loc = li; S.locs[li].cards.a.push(c); S.pending.a.push(c); S.energy.a -= c.cost;
     }
-  } else aiPlan();
+    const ou = NET.opp && NET.opp.ult;
+    if (ou && ou.t===S.turn && Number.isInteger(ou.li) && S.locs[ou.li] && !S.ult.a.used && S.turn>=ULT_FROM) S.ult.a.armed = ou.li;
+  } else { aiPlan(); aiUlt(); }
+  S.ultPick = false;
   S.phase = 'reveal';
   render();                    // enemy cards fly in face down
   await wait(500); if (!alive()) return;
   const first = S.turn%2===1 ? S.firstOdd : OPP[S.firstOdd];
+  for (const sd of [first, OPP[first]]){          // signature moves go off before any card turns
+    const u = S.ult[sd]; if (u.armed==null) continue;
+    const li = u.armed; u.armed = null; u.used = true;
+    FX.push({t:'ult', side:sd, li, kind:u.kind});
+    ULTS[u.kind].fn(sd, S.locs[li], li);
+    render(); await wait(1600); if (!alive()) return;
+  }
   const order = [...S.pending[first], ...S.pending[OPP[first]]];
   for (const c of order){
     if (!locOf(c).cards[c.owner].includes(c)) continue;
-    if (c.cost>=5){ await showcase(c); if (!alive()) return; }   // big cards take the stage first
-    c.revealed = true; c.fx = 'flip';
-    FX.push({t:'burst', uid:c.uid});
-    if (c.dark) addKarma(c.owner, c.dark*(locOf(c).karmaX??1));
-    ACTOR = c;
-    if (c.reveal) c.reveal(c);
-    if (locOf(c).onHere) locOf(c).onHere(c);
-    ACTOR = null;
+    if (c.cost>=5 && !c.trap){ await showcase(c); if (!alive()) return; }   // big cards take the stage first
+    if (!revealCard(c)){ render(); await wait(480); if (!alive()) return; continue; }
     const busy = FX.some(f => !['burst','shake','float'].includes(f.t));
     render();
     await wait(busy ? 1100 : 760); if (!alive()) return;
@@ -918,7 +996,8 @@ const rallyFor = s => { const gap = S.hp[OPP[s]] - S.hp[s]; return !RALLY[0] || 
 function clashList(){
   const out = [];
   S.locs.forEach((L, li) => { const d = sideTotal(L,'p') - sideTotal(L,'a');
-    if (d) out.push({li, loser: d>0 ? 'a' : 'p', dmg: Math.min(Math.abs(d), LANE_CAP)}); });
+    const loser = d>0 ? 'a' : 'p';
+    if (d && !S.shield.some(x => x.li===li && x.side===loser && x.turn===S.turn)) out.push({li, loser, dmg: Math.min(Math.abs(d), LANE_CAP)}); });
   return out;
 }
 function result(){
@@ -954,6 +1033,7 @@ function finish(reason){
   }
   const total = pvp ? null : getBarami() + delta; if (!pvp) setBarami(total);
   $('#endSheet').classList.toggle('lose', !win);
+  win ? sfx.win() : sfx.lose();
   $('#endTitle').textContent = title;
   $('#endRes').innerHTML = S.locs.map(L => {
     const p=sideTotal(L,'p'), a=sideTotal(L,'a');
@@ -971,7 +1051,7 @@ function finish(reason){
 /* ---------- player actions ---------- */
 function selectHand(uid){
   if (S.phase!=='play') return;
-  S.sel = S.sel===uid ? null : uid; render();
+  S.sel = S.sel===uid ? null : uid; sfx.tick(); render();
 }
 function place(li){
   const c = S.hand.p.find(c=>c.uid===S.sel);
@@ -995,7 +1075,7 @@ function placeReason(c,li){
 function unplace(uid){
   for (const L of S.locs){
     const c = L.cards.p.find(x=>x.uid===uid);
-    if (c && !c.revealed && S.phase==='play'){
+    if (c && !c.revealed && !c.armed && S.phase==='play'){
       L.cards.p.splice(L.cards.p.indexOf(c),1);
       S.pending.p.splice(S.pending.p.indexOf(c),1);
       c.loc=-1; S.hand.p.push(c); S.energy.p += c.cost; render(); return;
@@ -1020,7 +1100,7 @@ function cardFace(c, o={}){
     <div class="cf-foil"></div><div class="cf-sheen"></div>
     ${o.board?'':c.token?`<div class="cf-tok">การ์ดเรียก</div>`:`<div class="cf-cost"><span>${c.cost}</span></div>`}
     <div class="cf-pow ${cmp}"><span>${pw}</span></div>
-    ${c.dark&&!o.board?`<div class="cf-karma">กรรม+${c.dark}</div>`:''}
+    ${c.dark&&!o.board?`<div class="cf-karma">กรรม+${c.dark}</div>`:''}${c.trap&&!o.board?`<div class="cf-karma trapt">กับดัก</div>`:''}
     ${o.board?'':`<div class="cf-name">${c.name}</div><div class="cf-el"></div>`}
   </div>`;
 }
@@ -1029,10 +1109,10 @@ const livePower = c => c.revealed && onBoard(c) ? power(c) : null;
 
 function miniCard(c, style){
   if (!c.revealed && c.owner==='a')
-    return `<div class="mc" style="${style}" data-uid="${c.uid}" data-foe="1" aria-label="การ์ดคว่ำของศัตรู"><div class="cf back"></div></div>`;
+    return `<div class="mc ${c.armed?'armed':''}" style="${style}" data-uid="${c.uid}" data-foe="1" aria-label="${c.armed?'กับดักของศัตรู':'การ์ดคว่ำของศัตรู'}"><div class="cf back"></div></div>`;
   const fx = c.fx==='flip' ? 'flip' : c.fx ? 'fx-'+c.fx : '';
   const pw = livePower(c);
-  return `<button class="mc ${c.revealed?'':'pend'} ${fx}" style="${style}" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw ?? c.power}">
+  return `<button class="mc ${c.revealed?'':c.armed?'armed mine':'pend'} ${fx}" style="${style}" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw ?? c.power}">
     ${cardFace(c,{board:true, power:pw})}</button>`;
 }
 function slotsHTML(L, side){
@@ -1068,7 +1148,7 @@ function render(){
   $('#board').innerHTML = S.locs.map((L,li) => {
     const a = sideTotal(L,'a'), p = sideTotal(L,'p');
     const target = selCard && playing && selCard.cost<=S.energy.p && canPlace(selCard,li) ? 'target' : '';
-    return `<section class="lane ${p>a?'lead-p':a>p?'lead-a':''} ${introPending?'intro':''}" style="--d:${li*.22}s">
+    return `<section class="lane ${p>a?'lead-p':a>p?'lead-a':''} ${introPending?'intro':''} ${S.ultPick?'ultpick':''} ${S.ult.p.armed===li?'ultarmed':''}" style="--d:${li*.22}s">
       <div class="lane-bg" style="background-image:url(${realmArt(L)})"></div>
       <div class="slots a">${slotsHTML(L,'a')}</div>
       <div class="loc el-${L.el}">
@@ -1110,6 +1190,13 @@ function render(){
     $('#tip').firstChild.textContent = hint;   // a friend's display name is their text: never parse it as HTML
   }
 
+  const U = S.ult.p, ud = ULTS[U.kind], ub = $('#btnUlt');
+  ub.className = 'ultbtn ' + (U.used ? 'used' : S.turn<ULT_FROM ? 'locked' : U.armed!=null ? 'armed' : S.ultPick ? 'picking' : 'ready');
+  ub.style.backgroundImage = `url(${cardArt({id:ud.art})})`;
+  ub.innerHTML = `<span>${U.used ? 'ใช้แล้ว' : S.turn<ULT_FROM ? `เทิร์น ${thNum(ULT_FROM)}` : U.armed!=null ? 'ยกเลิก' : 'ไม้ตาย'}</span>`;
+  ub.setAttribute('aria-label', `ท่าไม้ตาย ${ud.name}: ${ud.text}`);
+  if (S.ultPick && playing) $('#tip').innerHTML = `<div><span class="tip-n">${ud.name}</span><span class="chip">ท่าไม้ตาย</span><div>${ud.text} · แตะภพที่ต้องการ</div></div>`;
+  else if (U.armed!=null && playing && !selCard) $('#tip').innerHTML = `<div><span class="tip-n">${ud.name}</span><span class="chip">พร้อมใช้ที่${S.locs[U.armed].name}</span><div>จะทำงานตอนจบเทิร์น ก่อนเปิดการ์ด</div></div>`;
   const orb = $('#orb');
   orb.querySelector('b').textContent = S.energy.p;
   orb.classList.toggle('empty', S.energy.p===0);
@@ -1179,6 +1266,13 @@ function runFX(before){
   const rectFor = uid => { const e = elOf(uid); return e ? e.getBoundingClientRect() : before[uid]?.r; };
   const card = uid => findCard(uid);
   for (const f of list){
+    soundFor(f);
+    if (f.t==='heal'){
+      const r = $(f.side==='p' ? '#meAvatar' : '#foeAvatar').getBoundingClientRect();
+      const n = fxEl('hitnum', `left:${r.left+r.width/2}px;top:${r.top+r.height/2}px;color:#8ef07a`); n.textContent = '+' + f.n;
+      n.animate([{transform:'translate(-50%,-50%) scale(.5)', opacity:0},{transform:'translate(-50%,-50%) scale(1.4)', opacity:1, offset:.3},{transform:`translate(-50%,${f.side==='p'?-170:70}%)`, opacity:0}], {duration:1100}).onfinish = () => n.remove();
+      continue;
+    }
     if (f.t==='float'){
       later(f.delay, () => {
         const el = elOf(f.uid); if (!el) return;
@@ -1209,6 +1303,17 @@ function runFX(before){
       const b = before[f.uid]; if (b && b.html) later(380, () => shatter(b.r, b.html));
     } else if (f.t==='shake'){
       $('#board').animate([{transform:'none'},{transform:'translate(-5px,2px)'},{transform:'translate(5px,-2px)'},{transform:'translate(-3px,1px)'},{transform:'none'}], {duration:360});
+    } else if (f.t==='arm'){
+      const r = rectFor(f.uid); if (r){ shock(mid(r), '#c9a2ff', 110); shards(mid(r), 'puff', 5, {color:'rgba(160,100,255,.5)', mode:'out', dist:50}); }
+    } else if (f.t==='spring'){
+      const b0 = before[f.uid]; if (b0){ if (b0.html) shatter(b0.r, b0.html); shock(mid(b0.r), '#c9a2ff', 220); [-40,40,0].forEach((a,i) => slash(mid(b0.r), '#e6d4ff', a*2+90, i*60, 150)); quake(1); }
+    } else if (f.t==='shield'){
+      const r = rectFor(f.uid); if (r){ yantra(mid(r), '#f6dc96'); shock(mid(r), '#f6dc96', 200); }
+    } else if (f.t==='ult'){
+      const lane = document.querySelectorAll('#board .lane')[f.li]?.getBoundingClientRect();
+      banner(ULTS[f.kind].name, f.side==='p' ? 'ท่าไม้ตายของเรา' : `ท่าไม้ตายของ${foeName()}`);
+      if (lane){ const c0 = mid(lane); rays(c0, f.side==='p' ? '#f6dc96' : '#ff6a55', 520, 1600); shock(c0, '#fff3c2', 360); shock(c0, '#fff3c2', 240, 180); }
+      quake(1.8); flash(f.side==='p' ? 'rgba(246,220,150,.22)' : 'rgba(255,60,40,.22)');
     } else if (f.t==='hit'){
       const lane = document.querySelectorAll('#board .lane')[f.li];
       const from = lane?.querySelector(f.loser==='a' ? '.medal.p' : '.medal.a')?.getBoundingClientRect();
@@ -1415,6 +1520,7 @@ function signature(c, center){ try { (SIG[c.id] || (() => {}))(center); } catch(
 // then dives into its slot.
 function showcase(c){
   if (REDUCED) return Promise.resolve();
+  sfx.gong();
   const target = elOf(c.uid)?.getBoundingClientRect();
   if (!target) return Promise.resolve();
   const W = Math.min(230, innerWidth*.56), H = W*4/3, cx = innerWidth/2, cy = innerHeight*.42;
@@ -1449,6 +1555,7 @@ function strike(a, b, dmg, loser){
                {transform:`translate(-50%,${loser==='p' ? -160 : 60}%) scale(1)`, opacity:0}], {duration:1000, easing:'ease-out'}).onfinish = () => n.remove();
     const bar = $(loser==='a' ? '.hud' : '.dock');
     bar.animate([{transform:'none'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(-3px)'},{transform:'none'}], {duration:300});
+    sfx.drum(dmg>=5); if (loser==='p') sfx.hurt();
     if (loser==='p') flash(`rgba(255,40,30,${Math.min(.3, .08 + dmg*.035)})`);
     if (dmg>=5) quake(1);
   };
@@ -1456,7 +1563,7 @@ function strike(a, b, dmg, loser){
 
 function banner(text, sub){
   const b = $('#turnban');
-  b.innerHTML = `<b>${text}</b>${sub ? `<small>${sub}</small>` : ''}`;
+  b.innerHTML = '<b></b><small></small>'; b.firstChild.textContent = text; b.lastChild.textContent = sub || '';
   b.hidden = false;
   if (REDUCED){ setTimeout(()=>{ b.hidden = true; }, 900); return; }
   b.animate([{opacity:0, transform:'translateX(-30%) skewX(-12deg)'},{opacity:1, transform:'none', offset:.18},
@@ -1527,28 +1634,120 @@ function buildRules(){
   })(0);
 })();
 
+/* ---------- sound: synthesized, no audio files ---------- */
+const SND = {ctx:null, on:true};
+try { SND.on = localStorage.getItem('samphop-sound')!=='off'; } catch(e){}
+function actx(){
+  if (!SND.on) return null;
+  try { SND.ctx = SND.ctx || new (window.AudioContext || window.webkitAudioContext)(); if (SND.ctx.state==='suspended') SND.ctx.resume(); return SND.ctx.state==='running' ? SND.ctx : null; }
+  catch(e){ return null; }
+}
+function tone(freq, dur, o={}){
+  const c = actx(); if (!c) return;
+  const t = c.currentTime + (o.at||0), osc = c.createOscillator(), g = c.createGain();
+  osc.type = o.type || 'triangle'; osc.frequency.setValueAtTime(freq, t);
+  if (o.slide) osc.frequency.exponentialRampToValueAtTime(Math.max(20, freq*o.slide), t + dur);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(o.gain||.16, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  osc.connect(g).connect(c.destination); osc.start(t); osc.stop(t + dur + .05);
+}
+function noise(dur, o={}){
+  const c = actx(); if (!c) return;
+  const buf = c.createBuffer(1, Math.ceil(c.sampleRate*dur), c.sampleRate), d = buf.getChannelData(0);
+  for (let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * (1 - i/d.length);
+  const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = buf; f.type = 'highpass'; f.frequency.value = o.hp || 800; g.gain.value = o.gain || .2;
+  src.connect(f).connect(g).connect(c.destination); src.start(c.currentTime + (o.at||0));
+}
+const SCALE = [293.7, 329.6, 370, 440, 493.9, 587.3, 659.3, 740, 880];   // ranat-style pentatonic run
+const sfx = {
+  tick: () => tone(660, .05, {type:'sine', gain:.06}),
+  place: () => { tone(180, .1, {type:'sine', gain:.28, slide:.5}); noise(.05, {gain:.08}); },
+  note: i => { const f = SCALE[((i%SCALE.length)+SCALE.length)%SCALE.length]; tone(f, .55, {gain:.15}); tone(f*2, .25, {gain:.05, type:'sine'}); },
+  gong: () => [110, 164, 221, 277, 331].forEach((f,i) => tone(f*(1+i*.004), 2.4, {type:'sine', gain:.11/(i+1)+.03})),
+  drum: big => { tone(big ? 85 : 130, .3, {type:'sine', gain:.5, slide:.4}); noise(.08, {gain:.12, hp:300}); },
+  hurt: () => tone(70, .4, {type:'sawtooth', gain:.18, slide:.5}),
+  crack: () => { noise(.25, {gain:.25, hp:1500}); tone(400, .15, {type:'square', gain:.05, slide:.2}); },
+  snap: () => { noise(.06, {gain:.3, hp:2500}); tone(900, .12, {type:'square', gain:.07, slide:.3}); },
+  chime: () => [3, 5, 7].forEach((k,i) => tone(SCALE[k], .5, {gain:.1, at:i*.07})),
+  heal: () => [2, 4, 6, 8].forEach((k,i) => tone(SCALE[k], .4, {type:'sine', gain:.1, at:i*.06})),
+  win: () => { [0, 2, 4, 5, 7, 8].forEach((k,i) => tone(SCALE[k], .6, {gain:.16, at:i*.11})); setTimeout(() => sfx.gong(), 700); },
+  lose: () => [7, 5, 4, 2, 0].forEach((k,i) => tone(SCALE[k]/2, .7, {gain:.16, at:i*.16})),
+};
+function soundFor(f){
+  switch (f.t){
+    case 'burst': { const c = findCard(f.uid); sfx.note(c ? c.cost + (c.power%3) : 3); break; }
+    case 'land': sfx.place(); break;
+    case 'shatter': case 'karma': sfx.crack(); break;
+    case 'arm': sfx.tick(); break;
+    case 'spring': sfx.snap(); break;
+    case 'summon': case 'shield': sfx.chime(); break;
+    case 'heal': sfx.heal(); break;
+    case 'ult': sfx.gong(); sfx.drum(true); break;
+    case 'banner': sfx.note(S ? S.turn : 0); break;
+  }
+}
+
+/* ---------- signature moves: one per deck, once per game ---------- */
+const ULT_FROM = 3;
+const ULTS = {
+  destroy:{name:'วัชระพินาศ', art:'indra', text:'ทำลายการ์ดศัตรูที่แรงที่สุดในภพที่เลือก', fn:(sd,L)=>{ const t=strongest(revealed(L.cards[OPP[sd]])); if (t) destroy(t); }},
+  buff:{name:'บารมีเปี่ยมล้น', art:'khotchasi', text:'การ์ดของเราทุกใบในภพที่เลือก +2', fn:(sd,L)=>revealed(L.cards[sd]).forEach(t=>buff(t,2))},
+  dark:{name:'มนตร์ดำ', art:'tosakan', text:'การ์ดศัตรูทุกใบในภพที่เลือก −2 แต่เราได้กรรม +2', fn:(sd,L)=>{ revealed(L.cards[OPP[sd]]).forEach(t=>buff(t,-2)); addKarma(sd,2); }},
+  water:{name:'คลื่นบาดาล', art:'nagaraj', text:'ในภพที่เลือก การ์ดของเรา +1 และการ์ดศัตรู −1', fn:(sd,L)=>{ revealed(L.cards[sd]).forEach(t=>buff(t,1)); revealed(L.cards[OPP[sd]]).forEach(t=>buff(t,-1)); }},
+  summon:{name:'ปลุกทัพผี', art:'tani', text:'เรียกผีพราย 2 ตัวลงภพที่เลือก', fn:(sd,L,li)=>{ summonFor(sd,TOKENS.phrai,li); summonFor(sd,TOKENS.phrai,li); }},
+  wind:{name:'พายุหมุน', art:'garuda', text:'การ์ดศัตรูที่แรงที่สุดในภพที่เลือก −3 และเราจั่ว 1 ใบ', fn:(sd,L)=>{ const t=strongest(revealed(L.cards[OPP[sd]])); if (t) buff(t,-3); draw(sd); }},
+  trick:{name:'ลวงตา', art:'suea', text:'การ์ดศัตรูทุกใบที่เปิดในภพที่เลือกเทิร์นนี้ −2', fn:(sd,L,li)=>S.hex.push({li, by:sd, turn:S.turn})},
+  rally:{name:'ฮึดสู้', art:'hanuman', text:'การ์ดของเราในภพที่เลือก +1 และฟื้นเลือด 2', fn:(sd,L)=>{ revealed(L.cards[sd]).forEach(t=>buff(t,1)); heal(sd,2); }},
+};
+let aiUltKind = 'rally';
+const myUltKind = () => { const k = currentDeck().key; return ULTS[k] ? k : 'rally'; };
+function aiUlt(){
+  const u = S.ult.a; if (u.used || S.turn<4 || (S.turn<6 && S.hp.a>=S.hp.p)) return;
+  const score = li => { const L = S.locs[li], foes = revealed(L.cards.p), mine = revealed(L.cards.a);
+    switch (u.kind){
+      case 'destroy': case 'wind': return foes.length ? Math.max(...foes.map(power)) : -1;
+      case 'dark': return foes.length*2;
+      case 'trick': return foes.length + 2;
+      case 'summon': return (L.cap||4) - L.cards.a.length >= 2 ? 4 : -1;
+      default: return mine.length*2; } };
+  const best = S.locs.map((L,li)=>li).sort((x,y)=>score(y)-score(x))[0];
+  if (score(best)>=3) u.armed = best;
+}
+$('#btnUlt').addEventListener('click', () => {
+  const U = S.ult.p, ud = ULTS[U.kind];
+  if (S.phase!=='play') return;
+  if (U.used){ toast(`ใช้${ud.name}ไปแล้วในเกมนี้`); return; }
+  if (S.turn<ULT_FROM){ toast(`${ud.name}: ${ud.text} (ใช้ได้ตั้งแต่เทิร์น ${thNum(ULT_FROM)})`); return; }
+  if (U.armed!=null){ U.armed = null; S.ultPick = false; }
+  else S.ultPick = !S.ultPick;
+  S.sel = null; sfx.tick(); render();
+});
+
 /* ---------- decks: presets, custom slots, deck screen and builder ---------- */
 const PRESETS = {
   destroy:{name:'วัชระพิฆาต', tag:'ทำลาย · ลดพลัง', tc:'#ff7a62', desc:'กวาดการ์ดศัตรูออกจากสนามและบั่นทอนพลัง ปิดเกมด้วยวัชระของพระอินทร์',
-    ids:['blackcat','karawek','chalawan','pranbun','pob','agni','aphai','kongkoi','garuda','yak','phirun','indra']},
+    ids:['blackcat','yantrap','chalawan','pranbun','nakabat','agni','aphai','kongkoi','garuda','yak','phirun','indra']},
   buff:{name:'บารมีทวีคูณ', tag:'เพิ่มพลัง', tc:'#8ef07a', desc:'วางการ์ดให้เกาะกลุ่มแล้วบัฟกันเองจนตัวเลขพุ่ง มีคอมโบหนุมานกับองคต',
-    ids:['kumanthong','phosop','novice','dryad','hera','hanuman','lion','naga','khotchasi','ongkot','suvanna','nagaraj']},
+    ids:['kumanthong','phosop','takrut','dryad','hera','hanuman','lion','naga','khotchasi','ongkot','suvanna','nagaraj']},
   dark:{name:'ทัพอสูร', tag:'สายมืด · เสี่ยงกรรม', tc:'#b98cff', desc:'การ์ดแรงเกินราคาแลกกับกรรม มีหมอผี เด็กวัด และฤๅษีคอยล้างกรรมให้',
     ids:['krasue','blackcat','novice','khamot','shaman','kumphan','tglom','kongkoi','pret','nak','tosakan','hermit']},
   water:{name:'บาดาลนคร', tag:'ธาตุน้ำ', tc:'#4aa8e8', desc:'ฝูงธาตุน้ำเสริมพลังกันเอง นาคกับพญานาคราชยิ่งมีพวกเยอะยิ่งแรง แพ้ทางครุฑ',
-    ids:['goldfish','karawek','kinnaree','hera','chalawan','nangkwak','naga','ngueak','nak','makara','suvanna','nagaraj']},
+    ids:['goldfish','karawek','nammon','hera','chalawan','nangkwak','naga','ngueak','nak','makara','suvanna','nagaraj']},
   summon:{name:'พิธีอัญเชิญ', tag:'อัญเชิญบริวาร', tc:'#9fdcff', desc:'หมอผี นางตานี และอาจารย์ไสยเวทเรียกบริวารลงเต็มสนาม แม่ย่านางทำให้บริวารทุกตัวแรงขึ้น',
     ids:['karawek','kumanthong','novice','shaman','yanang','nangkwak','tani','kongkoi','ajarn','ngueak','erawan','vessuwan']},
+  trick:{name:'เล่ห์กลพราน', tag:'กับดัก · เดาใจ', tc:'#e6b8ff', desc:'วางกับดักดักทางศัตรู ซุ่มโจมตีด้วยเสือสมิง และยิงเลือดตรง ๆ เมื่อเดาถูกว่าศัตรูไม่มา',
+    ids:['yantrap','takrut','karawek','nakabat','lak','nammon','lumphrang','suea','yak','ngueak','phirun','indra']},
   wind:{name:'กองทัพวายุ', tag:'ธาตุลม · เรียกพล', tc:'#4cc39b', desc:'จั่วไว เรียกการ์ดเสริมลงสนาม และมโนราห์ให้ธาตุลมทุกภพแรงขึ้น',
-    ids:['kinnaree','karawek','goldfish','hanuman','nangkwak','dryad','manohra','aphai','ongkot','ngueak','erawan','indra']},
+    ids:['kinnaree','karawek','goldfish','hanuman','nangkwak','lak','manohra','aphai','ongkot','ngueak','erawan','indra']},
 };
 const ROLE = {
   destroy:new Set(['blackcat','pob','agni','garuda','pranbun','chalawan','kongkoi','aphai','phirun','indra','yak']),
   buff:new Set(['kinnaree','dryad','hanuman','hera','naga','lion','khotchasi','hermit','suvanna','nagaraj','kumanthong','phosop','manohra','ongkot','nak']),
   util:new Set(['goldfish','novice','karawek','nangkwak','khamot','vessuwan']),
+  trick:new Set(['yantrap','nakabat','lumphrang','suea','lak','takrut','nammon']),
   summon:new Set(['shaman','yanang','tani','ajarn','ngueak','erawan']),
 };
-const FILTERS = [['all','ทั้งหมด'],['in','ในเด็ค'],['destroy','ทำลาย · ลดพลัง'],['buff','เพิ่มพลัง'],['summon','อัญเชิญ'],['dark','สายมืด'],['util','จั่ว · อื่น ๆ']];
+const FILTERS = [['all','ทั้งหมด'],['in','ในเด็ค'],['destroy','ทำลาย · ลดพลัง'],['buff','เพิ่มพลัง'],['summon','อัญเชิญ'],['trick','กับดัก · เดาใจ'],['dark','สายมืด'],['util','จั่ว · อื่น ๆ']];
 const defOf = id => CARDS.find(c => c.id===id);
 const validDeck = d => Array.isArray(d) && d.length===12 && new Set(d).size===12 && d.every(id => typeof id==='string' && defOf(id));
 const esc = t => String(t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -1576,7 +1775,8 @@ const myDeckIds = () => currentDeck().ids;
 // of the same cost, so no card is on both sides.
 function aiDeckFor(mine){
   const keys = Object.keys(PRESETS).filter(k => PRESETS[k].ids.filter(id => mine.includes(id)).length < 8);
-  const base = PRESETS[keys[Math.floor(rand()*keys.length)] || 'buff'].ids;
+  aiUltKind = keys[Math.floor(rand()*keys.length)] || 'buff';
+  const base = PRESETS[aiUltKind].ids;
   const used = new Set(mine), out = [];
   for (const id of base) if (!used.has(id)){ out.push(id); used.add(id); }
   for (const id of base) if (mine.includes(id)){
@@ -1587,7 +1787,7 @@ function aiDeckFor(mine){
   return out;
 }
 function aiMatchDecks(){
-  const ids = myDeckIds(); if (!ids) return dealDecks();
+  const ids = myDeckIds(); if (!ids){ aiUltKind = 'rally'; return dealDecks(); }
   return {p: shuffle(ids.map(defOf)), a: shuffle(aiDeckFor(ids).map(defOf))};
 }
 
@@ -1604,6 +1804,7 @@ function renderDecks(){
     return `<div class="dtile ${cur===k?'sel':''}">
       <div class="dt-h"><b>${esc(d.name)}</b><span class="dtag" style="--tc:${d.tc}">${d.tag}</span></div>
       <p>${d.desc}</p>
+      <p class="dult">ท่าไม้ตาย <b>${(ULTS[k]||ULTS.rally).name}</b>: ${(ULTS[k]||ULTS.rally).text}</p>
       <div class="dthumbs">${thumbs}</div>
       <div class="dt-f">${ids ? curveHTML(ids) : '<span></span>'}
         <div class="dt-acts">${d.slot!=null ? `<button class="dbtn ghost" type="button" data-edit="${d.slot}">${ids?'แก้ไข':'จัดเด็ค'}</button>` : ''}
@@ -1688,7 +1889,8 @@ function netSet(patch){
   NET.nr?.presence(patch).catch(() => {});
 }
 function netSendTurn(){
-  netSet({moves: {...(NET.me.moves||{}), ['t'+S.turn]: S.pending.p.map(c => [c.id, c.loc])}, done: S.turn});
+  netSet({moves: {...(NET.me.moves||{}), ['t'+S.turn]: S.pending.p.map(c => [c.id, c.loc])},
+          ult: S.ult.p.armed!=null ? {t:S.turn, li:S.ult.p.armed} : (NET.me.ult || null), done: S.turn});
 }
 function oppMovesFor(turn){
   const o = NET.opp;
@@ -1714,7 +1916,7 @@ async function enterRoom(code, role){
     return;
   }
   Object.assign(NET, {nr, role, code, game:0, opp:null, oppBy:null, started:false, waiters:[], me:{}});
-  const base = {sp:1, role, done:0, moves:{}, vow:false, retreat:false, deck: myDeckIds() || dealDecks().p.map(d => d.id)};
+  const base = {sp:1, role, done:0, moves:{}, vow:false, retreat:false, ult:null, uk: myUltKind(), deck: myDeckIds() || dealDecks().p.map(d => d.id)};
   netSet(role==='host' ? {...base, g:1, seed: Math.floor(Math.random()*2147483647)} : {...base, g:0});
   NET.offPeers = nr.onPeers(onRoomPeers, () => { if (MODE.pvp && S.phase!=='over') toast('การเชื่อมต่อห้องหลุด'); });
   menuState(role==='host' ? 'hosting' : 'joining', code);
@@ -1759,10 +1961,11 @@ function onRoomPeers(ch){
 function startPvP(seed, g){
   clearTimeout(NET.findTimer);
   NET.game = g; NET.started = true; NET.waiters = [];
-  netSet({g, moves:{}, done:0, vow:false, retreat:false});
+  netSet({g, moves:{}, done:0, vow:false, retreat:false, ult:null});
   $('#menu').hidden = true; $('#endModal').hidden = true;
   const host = NET.role==='host';
-  newGame({pvp:true, role:NET.role, seed, decks:{host: host ? NET.me.deck : NET.opp.deck, guest: host ? NET.opp.deck : NET.me.deck}});
+  newGame({pvp:true, role:NET.role, seed, decks:{host: host ? NET.me.deck : NET.opp.deck, guest: host ? NET.opp.deck : NET.me.deck},
+           ults:{host: host ? NET.me.uk : NET.opp.uk, guest: host ? NET.opp.uk : NET.me.uk}});
   loadFoeIdentity();
   toast(`เริ่มศึก! ห้อง ${NET.code}`);
 }
@@ -1819,6 +2022,9 @@ $('#mCopy').addEventListener('click', () => {
 });
 function selectCode(){ const r = document.createRange(); r.selectNodeContents($('#roomCode')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('เลือกโค้ดไว้แล้ว กดคัดลอกได้เลย'); }
 $('#menuClose').addEventListener('click', () => { $('#menu').hidden = true; });
+const showSound = () => { $('#mSoundV').textContent = SND.on ? 'เปิด' : 'ปิด'; };
+$('#mSound').addEventListener('click', () => { SND.on = !SND.on; try { localStorage.setItem('samphop-sound', SND.on ? 'on' : 'off'); } catch(e){} showSound(); if (SND.on) sfx.chime(); });
+showSound();
 
 /* ---------- events ---------- */
 let retreatArm = 0;
@@ -1828,13 +2034,17 @@ document.addEventListener('click', e => {
   if (e.target.id==='rules'){ e.target.hidden = true; return; }
   if (e.target.closest('#inspect')){ $('#inspect').hidden = true; return; }
   if (!S || S.phase==='over') return;
+  if (S.ultPick && S.phase==='play'){
+    const lane = e.target.closest('#board .lane');
+    if (lane){ S.ult.p.armed = [...lane.parentNode.children].indexOf(lane); S.ultPick = false; sfx.chime(); render(); return; }
+  }
   const hc = e.target.closest('.hc');
-  if (hc){ selectHand(+hc.dataset.uid); return; }
+  if (hc){ S.ultPick = false; selectHand(+hc.dataset.uid); return; }
   const mc = e.target.closest('.mc[data-uid]');
   if (mc){
     const c = findCard(+mc.dataset.uid);
     if (c && c.owner==='a' && !c.revealed) return;   // face-down enemy card stays secret
-    if (c && c.owner==='p' && !c.revealed && S.phase==='play'){ unplace(c.uid); return; }
+    if (c && c.owner==='p' && !c.revealed && !c.armed && S.phase==='play'){ unplace(c.uid); return; }
     if (c) openInspect(c);
     return;
   }

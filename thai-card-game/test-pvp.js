@@ -32,7 +32,7 @@ const FAKE_ROOM = () => {
     await pg.goto('file://' + __dirname + '/index.html');
   }
   await host.waitForTimeout(800);
-  await host.evaluate(() => { DK.sel = 'destroy'; }); await guest.evaluate(() => { DK.sel = 'summon'; });
+  await host.evaluate(() => { DK.sel = 'destroy'; }); await guest.evaluate(() => { DK.sel = 'trick'; });
   await host.click('#mHost');
   await host.waitForSelector('#roomCode:not(:empty)');
   const code = await host.textContent('#roomCode');
@@ -48,7 +48,7 @@ const FAKE_ROOM = () => {
     tp: sideTotal(L, 'p'), ta: sideTotal(L, 'a'), hp: S.hp.p, ho: S.hp.a})));
   const sameDecks = await Promise.all([host, guest].map(pg => pg.evaluate(() => [S.deck.p.map(c=>c.id).join(), S.deck.a.map(c=>c.id).join()])));
   console.log('decks mirrored:', sameDecks[0][0] === sameDecks[1][1] && sameDecks[0][1] === sameDecks[1][0]);
-  console.log('host plays destroy deck, guest plays summon deck:', await host.evaluate(() => [...S.deck.p, ...S.hand.p].every(c => PRESETS.destroy.ids.includes(c.id)) && [...S.deck.a, ...S.hand.a].every(c => PRESETS.summon.ids.includes(c.id))));
+  console.log('host plays destroy deck, guest plays trick deck:', await host.evaluate(() => [...S.deck.p, ...S.hand.p].every(c => PRESETS.destroy.ids.includes(c.id)) && [...S.deck.a, ...S.hand.a].every(c => PRESETS.trick.ids.includes(c.id))));
 
   let mismatches = 0;
   for (let t = 1; t <= 8; t++) {
@@ -64,6 +64,7 @@ const FAKE_ROOM = () => {
       }
     }
     if (t === 3) await host.evaluate(() => document.querySelector('#btnVow').click());
+    if (t === 3){ await host.evaluate(() => { S.ult.p.armed = 1; }); await guest.evaluate(() => { S.ult.p.armed = 0; }); }   // both fire their signature moves
     await host.evaluate(() => document.querySelector('#btnEnd').click());
     await host.waitForTimeout(300);
     if (t === 2) await host.screenshot({path: require('os').tmpdir() + '/pvp-wait.png'});
@@ -75,6 +76,7 @@ const FAKE_ROOM = () => {
     if (!mirrored) { mismatches++; console.log('MISMATCH turn', t, JSON.stringify(a), JSON.stringify(g)); }
     console.log(`turn ${t}: ` + a.map(L => `${L.id} ${L.tp}-${L.ta}`).join(' | ') + `  HP ${a[0].hp}-${a[0].ho}` + (mirrored ? '  ✓ ตรงกัน' : '  ✗'));
   }
+  console.log('signature moves used on both screens:', JSON.stringify(await Promise.all([host, guest].map(pg => pg.evaluate(() => [S.ult.p.used, S.ult.a.used, S.ult.p.kind, S.ult.a.kind])))));
   await host.waitForTimeout(1500);
   const res = await Promise.all([host, guest].map(pg => pg.evaluate(() => [document.querySelector('#endTitle').textContent, S.stakes])));
   console.log('host sees:', res[0], ' guest sees:', res[1]);

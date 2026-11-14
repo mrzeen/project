@@ -18,11 +18,11 @@ const {chromium} = require('playwright');
       }
     }
     const keys = Object.keys(PRESETS), rows = [];
-    for (const [hp, cap, maxt, r0, r1] of [[25,6,8,0,8],[25,6,8,1,8],[25,6,8,1,5],[25,6,8,2,6],[30,6,8,1,5],[30,6,8,2,6],[30,5,8,2,6]]){
+    for (const [hp, cap, maxt, r0, r1] of [[25,6,8,1,5]]){
       HP0 = hp; LANE_CAP = cap; MAXT = maxt; RALLY = [r0, r1];
       const st = {n:0, ends:{}, ko:0, lead:0, swing:0, deck:{}};
       keys.forEach(k => st.deck[k] = {w:0, n:0});
-      for (let g=0; g<1500; g++){
+      for (let g=0; g<3000; g++){
         const ka = keys[g%keys.length], kb = keys[Math.floor(Math.random()*keys.length)];
         newGame({decks:{host:PRESETS[ka].ids, guest:PRESETS[kb].ids}}); FX = [];
         let t, leader3 = null;
@@ -32,8 +32,7 @@ const {chromium} = require('playwright');
           const first = t%2===1 ? 'p':'a';
           for (const c of [...S.pending[first], ...S.pending[OPP[first]]]){
             if (!locOf(c).cards[c.owner].includes(c)) continue;
-            c.revealed = true; if (c.dark) addKarma(c.owner, c.dark*(locOf(c).karmaX??1));
-            if (c.reveal) c.reveal(c); if (locOf(c).onHere) locOf(c).onHere(c);
+            revealCard(c);
           }
           S.pending = {p:[],a:[]}; karmaCheck(); FX = [];
           for (const h of clashList()) S.hp[h.loser] -= h.dmg;
