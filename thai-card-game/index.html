@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head>
+<body>
+<title>ศึกสามภพ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600;700&family=Chonburi&display=swap">
+<style>
+/* Layout: three realms side by side like panels of a lacquered temple door; enemy above, us below, hand docked underneath. Single dark lacquer-and-gold look by choice. */
+:root{
+  --bg:#170c0a; --panel:#24130f; --panel-2:#331b15; --line:#5c3b22;
+  --gold:#d8a642; --gold-hi:#f3d68c; --ink:#f5ead6; --muted:#b59c7e;
+  --lac:#9b231c; --lac-2:#6e1612; --shade:rgba(8,3,2,.72);
+  --earth:#b9813f; --water:#3b8fc8; --wind:#3fa383; --fire:#d9552e; --none:#8a7a68;
+  --karma:#a678e0; --up:#9fe08a; --down:#ff8a72;
+  --f-display:'Chonburi','Bai Jamjuree',Georgia,serif;
+  --f-body:'Bai Jamjuree','Noto Sans Thai','Leelawadee UI',system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{
+  background-color:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px;
+  background-image:radial-gradient(rgba(216,166,66,.08) 1px,transparent 1.6px);
+  background-size:16px 16px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.app{
+  max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:10px;
+  padding-block:12px 18px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;justify-content:space-between}
+.logo{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);font-size:1.6rem;margin:0;letter-spacing:.02em;
+  text-shadow:0 1px 0 #000,0 0 18px rgba(216,166,66,.25)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px;font-size:.82rem;color:var(--muted);white-space:nowrap}
+.chip b{color:var(--gold-hi);font-weight:600}
+.tools{display:flex;gap:6px}
+.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold-hi);border-radius:8px;padding:6px 12px;font-size:.86rem}
+.ghost:hover{background:rgba(216,166,66,.1)}
+.ghost:disabled,.main:disabled{opacity:.4;cursor:default}
+
+.strip{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:.84rem;color:var(--muted)}
+.strip .who{font-family:var(--f-display);color:var(--ink);font-size:.95rem}
+.pips{display:inline-flex;gap:3px;vertical-align:middle;margin-left:4px}
+.pip{width:9px;height:9px;border-radius:50%;border:1px solid var(--karma)}
+.pip.on{background:var(--karma);box-shadow:0 0 6px var(--karma)}
+.boon{width:11px;height:11px;transform:rotate(45deg);border:1px solid var(--gold);border-radius:2px}
+.boon.on{background:var(--gold)}
+
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lane{display:flex;flex-direction:column;gap:6px;min-width:0}
+.slots{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;aspect-ratio:4/5;border-radius:10px;padding:3px;transition:background .15s}
+.slots.p.target{background:rgba(216,166,66,.14);outline:1px dashed var(--gold);cursor:pointer}
+.slot{border:1px dashed rgba(181,156,126,.22);border-radius:6px}
+
+.mc{position:relative;border-radius:6px;border:1px solid rgba(243,214,140,.55);padding:0;min-width:0;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--elc) 78%,#000),color-mix(in srgb,var(--elc) 22%,var(--panel)));
+  display:grid;place-items:center;overflow:hidden}
+.mc .g{font-family:var(--f-display);font-size:clamp(1rem,4.2vw,1.55rem);color:var(--gold-hi);text-shadow:0 1px 2px #000;line-height:1}
+.mc .pw,.hc .pw{position:absolute;right:2px;bottom:2px;min-width:1.45em;height:1.45em;padding:0 3px;border-radius:999px;
+  background:var(--bg);border:1px solid var(--gold);color:var(--gold-hi);font-weight:700;font-size:.8rem;
+  display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.pw.hi{color:var(--up);border-color:var(--up)}
+.pw.lo{color:var(--down);border-color:var(--down)}
+.mc.dk{box-shadow:inset 0 0 10px var(--karma)}
+.mc.pend{opacity:.62;border-style:dashed}
+.mc.back{background:repeating-linear-gradient(45deg,var(--lac) 0 6px,var(--lac-2) 6px 12px);border-color:var(--gold)}
+.mc.back::after{content:"";width:34%;aspect-ratio:1;transform:rotate(45deg);border:1px solid var(--gold-hi)}
+.mc.flip{animation:flip .38s ease-out}
+.fx-up .pw{animation:pop .5s ease-out}
+.fx-down{animation:shake .4s}
+@keyframes flip{from{transform:rotateY(90deg);filter:brightness(2)}to{transform:none}}
+@keyframes pop{40%{transform:scale(1.5);box-shadow:0 0 10px var(--up)}}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+
+.loc{border:1px solid var(--gold);border-radius:10px;background:var(--panel-2);padding:6px 6px;text-align:center;
+  display:flex;flex-direction:column;gap:3px;position:relative;
+  background-image:linear-gradient(180deg,color-mix(in srgb,var(--elc) 22%,transparent),transparent 60%)}
+.lname{font-family:var(--f-display);color:var(--gold-hi);font-size:clamp(.78rem,2.9vw,1rem);line-height:1.25;text-wrap:balance}
+.lel{font-size:.7rem;color:var(--elc);font-weight:600;letter-spacing:.04em}
+.ltext{font-size:.7rem;color:var(--muted);line-height:1.3;min-height:2.6em}
+.tot{font-weight:700;font-size:1.05rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.tot.lead{color:var(--gold-hi);text-shadow:0 0 10px rgba(243,214,140,.5)}
+.tot.lead::after{content:" ◆";font-size:.6rem;vertical-align:middle}
+
+.info{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:3.6em;font-size:.88rem;line-height:1.45}
+.info b{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);font-size:1rem;margin-right:6px}
+.info .meta{color:var(--muted);font-size:.8rem}
+.info p{margin:2px 0 0}
+.tag{display:inline-block;font-size:.72rem;padding:0 7px;border-radius:999px;border:1px solid var(--elc);color:var(--elc);margin-left:4px}
+.tag.dark{border-color:var(--karma);color:var(--karma)}
+.hint{color:var(--muted)}
+
+.hand{display:flex;gap:8px;overflow-x:auto;padding:8px 2px 6px;min-height:142px;scrollbar-width:thin}
+.hc{position:relative;flex:0 0 auto;width:88px;aspect-ratio:5/7;border-radius:9px;border:1px solid var(--gold);padding:0;
+  background:linear-gradient(170deg,color-mix(in srgb,var(--elc) 80%,#000) 0 58%,var(--panel) 58%);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .15s,box-shadow .15s}
+.hc .g{font-family:var(--f-display);font-size:2rem;color:var(--gold-hi);margin-top:22%;text-shadow:0 2px 3px #000;line-height:1}
+.hc .nm{position:absolute;left:3px;right:3px;bottom:22px;font-size:.72rem;line-height:1.15;text-align:center;font-weight:600}
+.hc .cost{position:absolute;left:3px;top:3px;width:1.6em;height:1.6em;transform:rotate(45deg);background:var(--gold);border-radius:3px;
+  display:grid;place-items:center}
+.hc .cost span{transform:rotate(-45deg);color:var(--bg);font-weight:700;font-size:.82rem}
+.hc.dk{box-shadow:inset 0 0 14px var(--karma)}
+.hc.sel{transform:translateY(-8px);box-shadow:0 0 0 2px var(--gold-hi),0 6px 18px rgba(243,214,140,.35)}
+.hc.no{filter:grayscale(.75) brightness(.7)}
+.el-earth{--elc:var(--earth)} .el-water{--elc:var(--water)} .el-wind{--elc:var(--wind)} .el-fire{--elc:var(--fire)} .el-none{--elc:var(--none)}
+
+.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.main{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--bg);border:0;border-radius:10px;padding:10px 26px;
+  font-family:var(--f-display);font-size:1.05rem;box-shadow:0 3px 0 #7d5a1a}
+.main:active{transform:translateY(2px);box-shadow:0 1px 0 #7d5a1a}
+
+.modal{position:fixed;inset:0;background:var(--shade);display:grid;place-items:center;z-index:30;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--panel);border:1px solid var(--gold);border-radius:14px;max-width:720px;width:100%;max-height:100%;overflow:auto;padding:18px 18px 22px}
+.sheet h2{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);margin:0 0 8px;font-size:1.4rem;text-wrap:balance}
+.sheet h3{font-family:var(--f-display);font-weight:400;color:var(--gold);margin:18px 0 6px;font-size:1.05rem}
+.sheet p,.sheet li{line-height:1.6;color:var(--ink);max-width:65ch}
+.sheet ol,.sheet ul{padding-left:1.2em;margin:4px 0}
+.sheet .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.gcard{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel-2);font-size:.82rem;line-height:1.45}
+.gcard .gt{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+.gcard .gn{font-family:var(--f-display);color:var(--gold-hi);font-size:.95rem}
+.gcard .gs{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.res div{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;font-size:.85rem}
+.res .rw{color:var(--gold-hi);font-weight:700}
+.big{font-size:1.1rem}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:40;
+  background:var(--panel-2);border:1px solid var(--gold);color:var(--gold-hi);padding:8px 16px;border-radius:999px;
+  font-size:.9rem;box-shadow:0 6px 20px rgba(0,0,0,.5);max-width:calc(100% - 32px);text-align:center}
+
+@media (max-width:440px){
+  body{font-size:14px}
+  .hc{width:78px}
+  .ltext{font-size:.64rem}
+  .logo{font-size:1.35rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <h1 class="logo">ศึกสามภพ</h1>
+    <div class="chips">
+      <span class="chip" id="turnChip"></span>
+      <span class="chip" id="stakeChip"></span>
+      <span class="chip" id="baramiChip"></span>
+    </div>
+    <div class="tools">
+      <button class="ghost" id="btnRules" type="button">วิธีเล่น · การ์ด</button>
+      <button class="ghost" id="btnNew" type="button">เกมใหม่</button>
+    </div>
+  </header>
+  <div class="strip" id="aiStrip"></div>
+  <main class="board" id="board"></main>
+  <div class="strip" id="pStrip"></div>
+  <div class="info" id="info"></div>
+  <div class="hand" id="hand"></div>
+  <div class="actions">
+    <button class="ghost" id="btnRetreat" type="button">ถอย</button>
+    <button class="ghost" id="btnVow" type="button">ลั่นวาจา ×2</button>
+    <button class="main" id="btnEnd" type="button">จบเทิร์น</button>
+  </div>
+</div>
+
+<div class="modal" id="rules" hidden>
+  <div class="sheet">
+    <div class="row"><h2>วิธีเล่นศึกสามภพ</h2><button class="ghost" data-close="rules" type="button">ปิด</button></div>
+    <ol>
+      <li>สนามมี <b>3 ภพ</b> สุ่มมาจาก 9 แห่ง แต่ละภพมีธาตุและกฎของตัวเอง</li>
+      <li>เล่น <b>6 เทิร์น</b> เทิร์นที่ N ได้ <b>บุญ</b> N แต้มไว้ลงการ์ด บุญที่เหลือไม่สะสม</li>
+      <li>แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการ ลงได้ภพละ 4 ใบ แตะการ์ดที่เพิ่งลงอีกครั้งเพื่อเก็บคืน</li>
+      <li>กด <b>จบเทิร์น</b> แล้วทั้งสองฝ่ายเปิดการ์ดพร้อมกัน เทิร์นคี่เราเปิดก่อน เทิร์นคู่ศัตรูเปิดก่อน</li>
+      <li>จบเทิร์นที่ 6 ใครมีพลังรวมมากกว่า <b>2 ใน 3 ภพ</b> ชนะ ถ้าเสมอให้ดูพลังรวมทั้งสนาม</li>
+    </ol>
+    <h3>ธาตุ</h3>
+    <p>การ์ดธาตุเดียวกับภพได้ +1 · การ์ดที่ธาตุของภพข่มอยู่ได้ −1<br>
+      น้ำข่มไฟ · ไฟข่มลม · ลมข่มดิน · ดินข่มน้ำ</p>
+    <h3>กรรม</h3>
+    <p>การ์ดสายมืด (ขอบม่วง) แรงเกินราคา แต่สะสมกรรม เมื่อกรรมครบ ๕ ตอนจบเทิร์น การ์ดที่แรงที่สุดของเราจะโดน −3 แล้วกรรมลดลง ๕</p>
+    <h3>ยามค่ำ</h3>
+    <p>ตั้งแต่เทิร์นที่ ๔ การ์ดสายมืดทุกใบ +1</p>
+    <h3>ลั่นวาจาและถอย</h3>
+    <p>แต่ละเกมเดิมพันแต้ม <b>บารมี</b> เริ่มที่ 1 แต่ละฝ่ายลั่นวาจาได้ครั้งเดียว เดิมพันจะเพิ่มเป็นสองเท่า ถ้ารู้ว่าแพ้ กดถอยเพื่อเสียแค่ครึ่งเดียว</p>
+    <h3>ภพทั้ง 9 แห่ง</h3>
+    <div class="gallery" id="locGallery"></div>
+    <h3>การ์ดทั้งหมด</h3>
+    <div class="gallery" id="cardGallery"></div>
+  </div>
+</div>
+
+<div class="modal" id="endModal" hidden>
+  <div class="sheet">
+    <h2 id="endTitle"></h2>
+    <div class="res" id="endRes"></div>
+    <p class="big" id="endText"></p>
+    <div class="actions"><button class="main" id="btnAgain" type="button">เล่นอีกครั้ง</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const OPP = {p:'a', a:'p'};
+const EL = {earth:'ดิน', water:'น้ำ', wind:'ลม', fire:'ไฟ'};
+const BEATS = {water:'fire', fire:'wind', wind:'earth', earth:'water'}; // key ข่ม value
+const thNum = n => String(n).replace(/\d/g, d => '๐๑๒๓๔๕๖๗๘๙'[d]);
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = ms => new Promise(r => setTimeout(r, REDUCED ? ms/4 : ms));
+const shuffle = a => { for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; };
+
+const LOCS = [
+  {id:'arun', name:'วัดอรุณ', el:'earth', text:'การ์ดสายมืดลงที่นี่ไม่ได้', noDark:true},
+  {id:'market', name:'ตลาดน้ำ', el:'water', text:'การ์ดราคา 1–2 ที่นี่ +1', mod:c=>c.cost<=2?1:0},
+  {id:'cemetery', name:'ป่าช้า', el:'fire', text:'การ์ดสายมืดที่นี่ +2', mod:c=>c.dark?2:0},
+  {id:'kailash', name:'เขาไกรลาส', el:'wind', text:'ลงได้ฝ่ายละ 2 ใบ', cap:2},
+  {id:'badan', name:'เมืองบาดาล', el:'water', text:'การ์ดธาตุไฟลงที่นี่ไม่ได้', noEl:'fire'},
+  {id:'himmapan', name:'ป่าหิมพานต์', el:'wind', text:'เปิดการ์ดที่นี่แล้วจั่ว 1 ใบ', onHere:c=>draw(c.owner)},
+  {id:'ruin', name:'วัดร้าง', el:'earth', text:'กรรมจากการ์ดที่นี่ ×2', karmaX:2},
+  {id:'heaven', name:'ดาวดึงส์', el:'wind', text:'การ์ดราคา 4 ขึ้นไป +2', mod:c=>c.cost>=4?2:0},
+  {id:'field', name:'ทุ่งนา', el:'earth', text:'ไม่มีกฎพิเศษ'},
+];
+
+const CARDS = [
+  {id:'kinnaree', name:'กินรี', g:'ก', cost:1, power:2, el:'wind', text:'ต่อเนื่อง: ถ้าเป็นการ์ดใบเดียวของเราในภพนี้ +2', self:c=>mineAt(c).length===1?2:0},
+  {id:'novice', name:'เด็กวัด', g:'ด', cost:1, power:2, el:'earth', text:'เมื่อเปิด: กรรมของเรา −1', reveal:c=>addKarma(c.owner,-1)},
+  {id:'krasue', name:'ผีกระสือ', g:'ส', cost:1, power:3, el:'fire', dark:1, text:''},
+  {id:'blackcat', name:'แมวดำ', g:'ม', cost:1, power:2, el:null, dark:1, text:'เมื่อเปิด: การ์ดศัตรูที่แรงที่สุดในภพนี้ −1', reveal:c=>{const t=strongest(foesAt(c)); if(t) buff(t,-1);}},
+  {id:'goldfish', name:'ปลาตะเพียนทอง', g:'ป', cost:1, power:1, el:'water', text:'เมื่อเปิด: เทิร์นหน้าได้บุญ +1', reveal:c=>{S.bonus[c.owner]+=1;}},
+  {id:'dryad', name:'นางไม้', g:'น', cost:2, power:2, el:'earth', text:'ต่อเนื่อง: การ์ดอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o?1:0},
+  {id:'hanuman', name:'หนุมาน', g:'ห', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าศัตรูมีการ์ดในภพนี้มากกว่าเรา +3', reveal:c=>{if(foesAt(c).length>mineAt(c).length) buff(c,3);}},
+  {id:'pob', name:'ผีปอบ', g:'ป', cost:2, power:1, el:'earth', dark:1, text:'เมื่อเปิด: กินการ์ดอื่นของเราที่อ่อนที่สุดในภพนี้ แล้วได้พลังของมัน', reveal:c=>{const v=weakest(mineAt(c).filter(x=>x!==c)); if(v){const p=Math.max(0,v.power+v.buff); destroy(v); buff(c,p);}}},
+  {id:'shaman', name:'หมอผี', g:'ม', cost:2, power:3, el:'fire', text:'เมื่อเปิด: กรรมของเรา −2', reveal:c=>addKarma(c.owner,-2)},
+  {id:'hera', name:'เหรา', g:'ร', cost:2, power:3, el:'water', text:'เมื่อเปิด: ถ้าภพนี้เป็นธาตุน้ำ +2', reveal:c=>{if(locOf(c).el==='water') buff(c,2);}},
+  {id:'naga', name:'นาค', g:'น', cost:3, power:4, el:'water', text:'ต่อเนื่อง: การ์ดธาตุน้ำอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o&&c.el==='water'?1:0},
+  {id:'kumphan', name:'กุมภัณฑ์', g:'ภ', cost:3, power:5, el:'earth', dark:1, text:''},
+  {id:'tglom', name:'ผีตายทั้งกลม', g:'ต', cost:3, power:6, el:'fire', dark:2, text:''},
+  {id:'lion', name:'ราชสีห์', g:'ส', cost:3, power:4, el:'earth', text:'เมื่อเปิด: ถ้าเรานำอยู่ในภพนี้ +2', reveal:c=>{const L=locOf(c); if(sideTotal(L,c.owner,c)>sideTotal(L,OPP[c.owner])) buff(c,2);}},
+  {id:'agni', name:'เทพอัคนี', g:'อ', cost:3, power:3, el:'fire', text:'เมื่อเปิด: การ์ดศัตรูทุกใบในภพนี้ −1', reveal:c=>foesAt(c).forEach(t=>buff(t,-1))},
+  {id:'yak', name:'ยักษ์วัดแจ้ง', g:'ย', cost:4, power:6, el:'earth', text:'ต่อเนื่อง: การ์ดศัตรูราคา 1 ในภพนี้ −1', aura:(o,c)=>c.owner!==o.owner&&c.cost===1?-1:0},
+  {id:'garuda', name:'ครุฑ', g:'ค', cost:4, power:5, el:'wind', text:'เมื่อเปิด: ทำลายการ์ดธาตุน้ำที่แรงที่สุดของศัตรูในภพนี้', reveal:c=>{const t=strongest(foesAt(c).filter(x=>x.el==='water')); if(t) destroy(t);}},
+  {id:'nak', name:'แม่นาก', g:'น', cost:4, power:3, el:'water', dark:2, text:'ต่อเนื่อง: +1 ต่อการ์ดศัตรู 1 ใบในภพนี้', self:c=>foesAt(c).length},
+  {id:'khotchasi', name:'คชสีห์', g:'ช', cost:4, power:5, el:'earth', text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ +1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,1);})},
+  {id:'makara', name:'มกร', g:'ม', cost:5, power:8, el:'water', text:'ไม่มีความสามารถพิเศษ แต่ตัวใหญ่'},
+  {id:'tosakan', name:'ทศกัณฐ์', g:'ท', cost:5, power:10, el:'fire', dark:2, text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ −1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,-1);})},
+  {id:'hermit', name:'ฤๅษี', g:'ษ', cost:5, power:4, el:'wind', text:'เมื่อเปิด: ล้างกรรมของเราเป็น 0 และการ์ดอื่นของเราในภพนี้ +1', reveal:c=>{addKarma(c.owner,-99); mineAt(c).forEach(t=>{if(t!==c) buff(t,1);});}},
+  {id:'suvanna', name:'สุวรรณมัจฉา', g:'ส', cost:5, power:5, el:'water', text:'เมื่อเปิด: การ์ดของเราในภพข้างเคียง +1', reveal:c=>{[c.loc-1,c.loc+1].forEach(j=>{if(S.locs[j]) revealed(S.locs[j].cards[c.owner]).forEach(t=>buff(t,1));});}},
+  {id:'vessuwan', name:'ท้าวเวสสุวรรณ', g:'ว', cost:6, power:10, el:null, text:'ต่อเนื่อง: ศัตรูลงการ์ดสายมืดในภพนี้ไม่ได้', blockDark:true},
+  {id:'nagaraj', name:'พญานาคราช', g:'พ', cost:6, power:9, el:'water', text:'เมื่อเปิด: การ์ดธาตุน้ำอื่นของเราทุกภพ +1', reveal:c=>S.locs.forEach(L=>revealed(L.cards[c.owner]).forEach(t=>{if(t!==c&&t.el==='water') buff(t,1);}))},
+];
+
+/* ---------- rules engine ---------- */
+let S = null, uidN = 0;
+const revealed = a => a.filter(x => x.revealed);
+const locOf = c => S.locs[c.loc];
+const mineAt = c => revealed(locOf(c).cards[c.owner]);
+const foesAt = c => revealed(locOf(c).cards[OPP[c.owner]]);
+
+function power(c){
+  const L = locOf(c); let p = c.power + c.buff;
+  if (c.el && L.el){ if (c.el===L.el) p+=1; else if (BEATS[L.el]===c.el) p-=1; }
+  if (L.mod) p += L.mod(c);
+  if (S.turn>=4 && c.dark) p += 1;
+  if (c.self && c.revealed) p += c.self(c);
+  for (const side of ['p','a']) for (const o of revealed(L.cards[side])) if (o!==c && o.aura && c.revealed) p += o.aura(o,c);
+  return p;
+}
+const strongest = a => a.reduce((b,x) => !b || power(x)>power(b) ? x : b, null);
+const weakest = a => a.reduce((b,x) => !b || power(x)<power(b) ? x : b, null);
+const sideTotal = (L, side, exclude) => revealed(L.cards[side]).filter(x=>x!==exclude).reduce((s,x)=>s+power(x),0);
+function buff(c,n){ c.buff += n; c.fx = n>0 ? 'up' : 'down'; }
+function destroy(c){ const arr=locOf(c).cards[c.owner]; const i=arr.indexOf(c); if(i>=0) arr.splice(i,1); toast(`${c.name}${c.owner==='p'?'ของเรา':'ของศัตรู'} ถูกทำลาย`); }
+function addKarma(side,n){ S.karma[side] = Math.max(0, S.karma[side]+n); }
+function draw(side){ if (S.deck[side].length && S.hand[side].length<8) S.hand[side].push(S.deck[side].shift()); }
+const inst = (d, owner) => ({...d, dark:d.dark||0, uid:++uidN, owner, buff:0, loc:-1, revealed:false, fx:null});
+
+function canPlace(c, li){
+  const L = S.locs[li], side = c.owner;
+  if (L.cards[side].length >= (L.cap||4)) return false;
+  if (c.dark && L.noDark) return false;
+  if (L.noEl && c.el===L.noEl) return false;
+  if (c.dark && revealed(L.cards[OPP[side]]).some(x=>x.blockDark)) return false;
+  return true;
+}
+
+function buildDeck(){
+  const by = n => CARDS.filter(x=>x.cost===n);
+  const pick = (arr,n) => shuffle([...arr]).slice(0,n);
+  return shuffle([...pick(by(1),3),...pick(by(2),3),...pick(by(3),2),...pick(by(4),2),...pick(by(5),1),...pick(by(6),1)]);
+}
+
+function newGame(){
+  uidN = 0;
+  const locs = shuffle([...LOCS]).slice(0,3).map(L => ({...L, cards:{p:[],a:[]}}));
+  S = {turn:0, locs, deck:{p:buildDeck().map(d=>inst(d,'p')), a:buildDeck().map(d=>inst(d,'a'))},
+       hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
+       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null, focus:null};
+  for (let i=0;i<3;i++){ draw('p'); draw('a'); }
+  $('#endModal').hidden = true;
+  startTurn();
+}
+
+function startTurn(){
+  S.turn++;
+  for (const s of ['p','a']){ S.energy[s] = S.maxE[s] = S.turn + S.bonus[s]; S.bonus[s]=0; draw(s); }
+  S.phase = 'play';
+  if (S.turn===4) toast('ยามค่ำมาเยือน · การ์ดสายมืดทุกใบ +1');
+  render();
+  if (aiRetreatCheck()) return;
+}
+
+function aiPlan(){
+  let e = S.energy.a;
+  const hand = [...S.hand.a].sort((x,y)=>y.cost-x.cost || Math.random()-.5);
+  for (const c of hand){
+    if (c.cost > e) continue;
+    let best=-1, bs=-Infinity;
+    S.locs.forEach((L,li) => {
+      if (!canPlace(c,li)) return;
+      let est = c.power;
+      if (c.el && L.el){ if (c.el===L.el) est++; else if (BEATS[L.el]===c.el) est--; }
+      if (L.mod) est += L.mod(c);
+      if (S.turn>=4 && c.dark) est++;
+      if (c.dark) est -= c.dark*(L.karmaX||1)*0.8 + (S.karma.a>=3?2:0);
+      if (c.id==='hera' && L.el==='water') est += 2;
+      if (c.id==='garuda') est += revealed(L.cards.p).some(x=>x.el==='water') ? 5 : -2;
+      if (c.id==='pob' && !revealed(L.cards.a).length) est -= 3;
+      const diff = sideTotal(L,'a') - sideTotal(L,'p');
+      let s = est;
+      if (diff>=-8 && diff<=4) s += 3; else if (diff>12) s -= 4; else if (diff<-14) s -= 3;
+      s -= L.cards.a.length*0.6;
+      s += Math.random()*2;
+      if (s>bs){ bs=s; best=li; }
+    });
+    if (best>=0){
+      S.hand.a.splice(S.hand.a.indexOf(c),1);
+      c.loc = best; S.locs[best].cards.a.push(c); S.pending.a.push(c); e -= c.cost;
+    }
+  }
+}
+
+function lanesLead(side, margin){
+  return S.locs.filter(L => sideTotal(L,side) - sideTotal(L,OPP[side]) >= margin).length;
+}
+function aiVowCheck(){
+  if (!S.vowed.a && S.turn>=3 && lanesLead('a',4)>=2){
+    S.vowed.a = true; S.stakes *= 2;
+    toast(`ศัตรูลั่นวาจา! เดิมพันเป็น ${S.stakes} บารมี`);
+  }
+}
+function aiRetreatCheck(){
+  if (S.turn>=5 && S.stakes>=2 && lanesLead('p',7)>=2){
+    finish('a-retreat'); return true;
+  }
+  return false;
+}
+
+async function endTurn(){
+  if (S.phase!=='play') return;
+  S.phase = 'reveal'; S.sel = null;
+  aiPlan(); render();
+  const first = S.turn%2===1 ? 'p' : 'a';
+  const order = [...S.pending[first], ...S.pending[OPP[first]]];
+  for (const c of order){
+    await wait(480);
+    if (!locOf(c).cards[c.owner].includes(c)) continue;
+    c.revealed = true; c.fx = 'flip';
+    if (c.dark) addKarma(c.owner, c.dark*(locOf(c).karmaX||1));
+    if (c.reveal) c.reveal(c);
+    if (locOf(c).onHere) locOf(c).onHere(c);
+    S.focus = c;
+    render();
+  }
+  S.pending = {p:[],a:[]};
+  await wait(380);
+  karmaCheck(); render();
+  if (S.turn>=6){ await wait(700); finish(); return; }
+  aiVowCheck();
+  await wait(250);
+  startTurn();
+}
+
+function karmaCheck(){
+  for (const s of ['p','a']){
+    if (S.karma[s] >= 5){
+      S.karma[s] -= 5;
+      const t = strongest(S.locs.flatMap(L=>revealed(L.cards[s])));
+      if (t){ buff(t,-3); toast(`กรรมตามทัน! ${t.name}${s==='p'?'ของเรา':'ของศัตรู'} −3`); }
+    }
+  }
+}
+
+function result(){
+  const w={p:0,a:0}, tot={p:0,a:0};
+  S.locs.forEach(L => { const p=sideTotal(L,'p'), a=sideTotal(L,'a'); tot.p+=p; tot.a+=a; if(p>a) w.p++; else if(a>p) w.a++; });
+  if (w.p!==w.a) return w.p>w.a ? 'p' : 'a';
+  if (tot.p!==tot.a) return tot.p>tot.a ? 'p' : 'a';
+  return null;
+}
+
+function getBarami(){ try { return parseInt(localStorage.getItem('samphop-barami')||'0',10)||0; } catch(e){ return S?.baramiMem||0; } }
+function setBarami(v){ try { localStorage.setItem('samphop-barami', String(v)); } catch(e){} S.baramiMem = v; }
+
+function finish(reason){
+  S.phase = 'over'; render();
+  let delta, title, text;
+  if (reason==='p-retreat'){
+    delta = -Math.ceil(S.stakes/2); title = 'ถอยทัพ';
+    text = `เราถอยก่อนจบ เสียบารมี ${-delta} แต้ม (ครึ่งหนึ่งของเดิมพัน ${S.stakes})`;
+  } else if (reason==='a-retreat'){
+    delta = Math.ceil(S.stakes/2); title = 'ศัตรูถอยทัพ';
+    text = `ศัตรูเห็นท่าไม่ดีเลยถอยไป เราได้บารมี ${delta} แต้ม`;
+  } else {
+    const w = result();
+    if (w==='p'){ delta = S.stakes; title = 'ชนะศึก!'; text = `ยึดได้มากกว่า ได้บารมี ${delta} แต้ม`; }
+    else if (w==='a'){ delta = -S.stakes; title = 'พ่ายแพ้'; text = `ศัตรูยึดภพได้มากกว่า เสียบารมี ${-delta} แต้ม`; }
+    else { delta = 0; title = 'เสมอ'; text = 'พลังเท่ากันทุกทาง ไม่มีใครได้เสียบารมี'; }
+  }
+  const total = getBarami() + delta; setBarami(total);
+  $('#endTitle').textContent = title;
+  $('#endRes').innerHTML = S.locs.map(L => {
+    const p=sideTotal(L,'p'), a=sideTotal(L,'a');
+    return `<div><div class="lname">${L.name}</div><div class="${p>a?'rw':''}">เรา ${p}</div><div class="${a>p?'rw':''}">ศัตรู ${a}</div></div>`;
+  }).join('');
+  $('#endText').textContent = `${text} · บารมีสะสม ${total}`;
+  $('#endModal').hidden = false;
+  render();
+}
+
+/* ---------- player actions ---------- */
+function selectHand(uid){
+  if (S.phase!=='play') { S.focus = S.hand.p.find(c=>c.uid===uid); render(); return; }
+  const c = S.hand.p.find(c=>c.uid===uid);
+  S.sel = S.sel===uid ? null : uid; S.focus = c; render();
+}
+function place(li){
+  const c = S.hand.p.find(c=>c.uid===S.sel);
+  if (!c || S.phase!=='play') return;
+  if (c.cost > S.energy.p){ toast('บุญไม่พอ'); return; }
+  if (!canPlace(c,li)){ toast(placeReason(c,li)); return; }
+  S.hand.p.splice(S.hand.p.indexOf(c),1);
+  c.loc = li; S.locs[li].cards.p.push(c); S.pending.p.push(c);
+  S.energy.p -= c.cost; S.sel = null; S.focus = c;
+  render();
+}
+function placeReason(c,li){
+  const L=S.locs[li];
+  if (L.cards.p.length >= (L.cap||4)) return `${L.name}เต็มแล้ว`;
+  if (c.dark && L.noDark) return `สายมืดลง${L.name}ไม่ได้`;
+  if (L.noEl && c.el===L.noEl) return `ธาตุ${EL[c.el]}ลง${L.name}ไม่ได้`;
+  return 'ท้าวเวสสุวรรณขวางสายมืดไว้';
+}
+function unplace(uid){
+  for (const L of S.locs){
+    const c = L.cards.p.find(x=>x.uid===uid);
+    if (c && !c.revealed && S.phase==='play'){
+      L.cards.p.splice(L.cards.p.indexOf(c),1);
+      S.pending.p.splice(S.pending.p.indexOf(c),1);
+      c.loc=-1; S.hand.p.push(c); S.energy.p += c.cost; S.focus = c; render(); return;
+    }
+  }
+}
+function findCard(uid){
+  for (const L of S.locs) for (const s of ['p','a']) { const c=L.cards[s].find(x=>x.uid===uid); if (c) return c; }
+  return S.hand.p.find(x=>x.uid===uid);
+}
+
+/* ---------- rendering ---------- */
+const pips = (n,max,cls) => `<span class="pips">${Array.from({length:max},(_,i)=>`<span class="${cls}${i<n?' on':''}"></span>`).join('')}</span>`;
+
+function miniCard(c){
+  if (!c.revealed && c.owner==='a') return `<button class="mc back" type="button" aria-label="การ์ดคว่ำของศัตรู"></button>`;
+  const pw = c.revealed ? power(c) : c.power;
+  const cmp = !c.revealed ? '' : pw>c.power ? 'hi' : pw<c.power ? 'lo' : '';
+  const fx = c.fx==='flip' ? 'flip' : c.fx ? 'fx-'+c.fx : '';
+  return `<button class="mc el-${c.el||'none'} ${c.dark?'dk':''} ${c.revealed?'':'pend'} ${fx}" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw}">
+    <span class="g">${c.g}</span><span class="pw ${cmp}">${pw}</span></button>`;
+}
+function slotsHTML(L, side){
+  const cap = L.cap||4, cells=[];
+  for (let i=0;i<4;i++){
+    const row = side==='a' ? 2 - Math.floor(i/2) : 1 + Math.floor(i/2);
+    const style = `grid-row:${row};grid-column:${i%2+1}`;
+    const c = L.cards[side][i];
+    if (c) cells.push(miniCard(c).replace('<button ', `<button style="${style}" `));
+    else if (i<cap) cells.push(`<span class="slot" style="${style}"></span>`);
+  }
+  return cells.join('');
+}
+
+function render(){
+  const playing = S.phase==='play';
+  const first = S.turn%2===1 ? 'เราเปิดก่อน' : 'ศัตรูเปิดก่อน';
+  $('#turnChip').innerHTML = `เทิร์น <b>${thNum(S.turn)}/${thNum(6)}</b> · ${first}${S.turn>=4?' · ยามค่ำ':''}`;
+  $('#stakeChip').innerHTML = `เดิมพัน <b>${S.stakes}</b> บารมี`;
+  $('#baramiChip').innerHTML = `บารมีสะสม <b>${getBarami()}</b>`;
+  $('#aiStrip').innerHTML = `<span class="who">ฝั่งศัตรู</span><span>ในมือ ${S.hand.a.length} ใบ</span><span>กรรม ${pips(S.karma.a,5,'pip')}</span>${S.vowed.a?'<span>ลั่นวาจาแล้ว</span>':''}`;
+  $('#pStrip').innerHTML = `<span class="who">ฝั่งเรา</span><span>บุญ ${S.energy.p}/${S.maxE.p} ${pips(S.energy.p,S.maxE.p,'boon')}</span><span>กรรม ${pips(S.karma.p,5,'pip')}</span><span>กองจั่ว ${S.deck.p.length}</span>`;
+
+  const selCard = S.hand.p.find(c=>c.uid===S.sel);
+  $('#board').innerHTML = S.locs.map((L,li) => {
+    const a = sideTotal(L,'a'), p = sideTotal(L,'p');
+    const target = selCard && playing && selCard.cost<=S.energy.p && canPlace(selCard,li) ? 'target' : '';
+    return `<section class="lane">
+      <div class="slots a">${slotsHTML(L,'a')}</div>
+      <div class="loc el-${L.el}">
+        <div class="tot ${a>p?'lead':''}" aria-label="พลังศัตรู">${a}</div>
+        <div class="lname">${L.name}</div>
+        <div class="lel">ธาตุ${EL[L.el]}</div>
+        <div class="ltext">${L.text}</div>
+        <div class="tot ${p>a?'lead':''}" aria-label="พลังเรา">${p}</div>
+      </div>
+      <div class="slots p ${target}" data-li="${li}">${slotsHTML(L,'p')}</div>
+    </section>`;
+  }).join('');
+
+  $('#hand').innerHTML = S.hand.p.map(c => {
+    const no = c.cost > S.energy.p ? 'no' : '';
+    return `<button class="hc el-${c.el||'none'} ${c.dark?'dk':''} ${S.sel===c.uid?'sel':''} ${no}" data-uid="${c.uid}" type="button">
+      <span class="cost"><span>${c.cost}</span></span><span class="g">${c.g}</span>
+      <span class="nm">${c.name}</span><span class="pw">${c.power}</span></button>`;
+  }).join('') || '<span class="hint">มือว่าง</span>';
+
+  const f = S.focus && (findCard(S.focus.uid) || S.focus);
+  if (f){
+    const pw = f.revealed && f.loc>=0 && locOf(f).cards[f.owner].includes(f) ? power(f) : f.power;
+    $('#info').innerHTML = `<b>${f.name}</b><span class="meta">บุญ ${f.cost} · พลัง ${pw}${f.owner==='a'?' · ของศัตรู':''}</span>
+      <span class="tag el-${f.el||'none'}">${f.el?'ธาตุ'+EL[f.el]:'ไร้ธาตุ'}</span>${f.dark?`<span class="tag dark">สายมืด · กรรม +${f.dark}</span>`:''}
+      <p>${f.text || 'ไม่มีความสามารถพิเศษ'}</p>`;
+  } else {
+    $('#info').innerHTML = `<span class="hint">แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการลง · ยึดให้ได้ 2 ใน 3 ภพเมื่อจบเทิร์นที่ ๖</span>`;
+  }
+
+  $('#btnEnd').disabled = !playing;
+  $('#btnEnd').textContent = S.phase==='reveal' ? 'กำลังเปิดการ์ด…' : 'จบเทิร์น';
+  $('#btnVow').disabled = !playing || S.vowed.p;
+  $('#btnVow').textContent = S.vowed.p ? 'ลั่นวาจาแล้ว' : `ลั่นวาจา ×2`;
+  $('#btnRetreat').disabled = !playing;
+
+  for (const L of S.locs) for (const s of ['p','a']) for (const c of L.cards[s]) c.fx = null;
+}
+
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(()=>{ t.hidden = true; }, 2400);
+}
+
+function buildRules(){
+  $('#locGallery').innerHTML = LOCS.map(L => `<div class="gcard el-${L.el}"><div class="gt"><span class="gn">${L.name}</span><span class="tag">ธาตุ${EL[L.el]}</span></div>${L.text}</div>`).join('');
+  $('#cardGallery').innerHTML = [...CARDS].sort((a,b)=>a.cost-b.cost).map(c => `<div class="gcard el-${c.el||'none'}">
+    <div class="gt"><span class="gn">${c.name}</span><span class="gs">บุญ ${c.cost} · พลัง ${c.power}</span></div>
+    <span class="tag">${c.el?'ธาตุ'+EL[c.el]:'ไร้ธาตุ'}</span>${c.dark?`<span class="tag dark">สายมืด · กรรม +${c.dark}</span>`:''}
+    <div>${c.text || 'ไม่มีความสามารถพิเศษ'}</div></div>`).join('');
+}
+
+/* ---------- events ---------- */
+let retreatArm = 0;
+document.addEventListener('click', e => {
+  const close = e.target.closest('[data-close]');
+  if (close){ $('#'+close.dataset.close).hidden = true; return; }
+  if (e.target.classList.contains('modal') && e.target.id==='rules'){ e.target.hidden = true; return; }
+  const hc = e.target.closest('.hc');
+  if (hc){ selectHand(+hc.dataset.uid); return; }
+  const mc = e.target.closest('.mc[data-uid]');
+  if (mc){
+    const c = findCard(+mc.dataset.uid);
+    if (c && c.owner==='p' && !c.revealed && S.phase==='play'){ unplace(c.uid); return; }
+    if (c){ S.focus = c; render(); }
+    return;
+  }
+  const slots = e.target.closest('.slots.p');
+  if (slots && S.sel){ place(+slots.dataset.li); return; }
+});
+$('#btnEnd').addEventListener('click', endTurn);
+$('#btnVow').addEventListener('click', () => {
+  if (S.phase!=='play' || S.vowed.p) return;
+  S.vowed.p = true; S.stakes *= 2; toast(`ลั่นวาจาแล้ว! เดิมพันเป็น ${S.stakes} บารมี`); render();
+});
+$('#btnRetreat').addEventListener('click', () => {
+  if (S.phase!=='play') return;
+  const b = $('#btnRetreat');
+  if (Date.now() - retreatArm < 3000){ finish('p-retreat'); return; }
+  retreatArm = Date.now(); b.textContent = 'แตะอีกครั้งเพื่อถอย';
+  setTimeout(()=>{ b.textContent = 'ถอย'; }, 3000);
+});
+$('#btnNew').addEventListener('click', newGame);
+$('#btnAgain').addEventListener('click', newGame);
+$('#btnRules').addEventListener('click', () => { $('#rules').hidden = false; });
+document.addEventListener('keydown', e => { if (e.key==='Escape') $('#rules').hidden = true; });
+
+buildRules();
+newGame();
+</script>
+</body>
+</html>
