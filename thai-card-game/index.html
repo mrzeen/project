@@ -306,6 +306,46 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 .end-acts{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
 .end-acts .end-btn{margin:0}
 
+/* ---------- decks ---------- */
+.deck-row{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:14px;text-align:left;color:var(--ink);
+  border:1px solid var(--gold);background:linear-gradient(90deg,rgba(246,220,150,.14),rgba(246,220,150,.03))}
+.deck-row:disabled{opacity:.5;cursor:default}
+.deck-l{font-size:.72rem;color:var(--muted)}
+.deck-row b{flex:1;min-width:0;font-family:var(--f-display);font-weight:400;color:var(--gold-hi);font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deck-go{font-size:.78rem;color:var(--gold)}
+.dgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:12px}
+.dtile{border-radius:16px;padding:12px;border:1px solid var(--line);background:rgba(0,0,0,.3);display:flex;flex-direction:column;gap:8px;min-width:0}
+.dtile.sel{border-color:var(--gold-hi);box-shadow:0 0 0 1px var(--gold-hi),0 0 22px rgba(246,220,150,.25)}
+.dt-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.dt-h b{font-family:var(--f-display);font-weight:400;font-size:1.1rem;color:var(--gold-hi);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtag{flex:0 0 auto;font-size:.66rem;font-weight:600;padding:1px 9px;border-radius:999px;color:#120a07;background:var(--tc,var(--gold))}
+.dtile p{margin:0;font-size:.8rem;line-height:1.5;color:var(--muted);max-width:none}
+.dthumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.dthumbs button{position:relative;aspect-ratio:3/4;border-radius:6px;background-size:cover;background-position:center 18%;box-shadow:0 0 0 1px rgba(246,220,150,.45)}
+.dthumbs button span{position:absolute;left:2px;top:2px;min-width:15px;height:15px;border-radius:50%;font-size:.62rem;font-weight:700;line-height:15px;text-align:center;color:#fff;background:#2a86c9}
+.dthumbs .empty{aspect-ratio:3/4;border-radius:6px;border:1px dashed var(--line)}
+.dt-f{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.curve{display:flex;align-items:flex-end;gap:3px;height:34px}
+.curve i{width:14px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--gold-hi),var(--gold-lo));min-height:2px;position:relative}
+.curve i::after{content:attr(data-c);position:absolute;left:0;right:0;bottom:-14px;font:normal .6rem var(--f-ui);color:var(--muted);text-align:center}
+.dt-acts{display:flex;gap:6px;padding-bottom:2px}
+.dbtn{padding:7px 14px;border-radius:10px;font-size:.8rem;font-weight:600;color:#2a1206;background:linear-gradient(180deg,#fff0bd,#e7b552 55%,#a8701c)}
+.dbtn.ghost{color:var(--gold-hi);background:rgba(255,230,170,.06);border:1px solid var(--line)}
+.dbtn:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
+.b-top{display:flex;gap:8px;align-items:center;margin-top:12px}
+.b-top input{flex:1;min-width:0;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--ink);font:500 .95rem var(--f-ui);padding:0 12px}
+.b-top input:focus-visible{outline:2px solid var(--gold-hi);outline-offset:1px}
+.b-count{font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold-hi);white-space:nowrap}
+.b-curve{margin:12px 0 22px}
+.b-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;position:sticky;top:-20px;z-index:6;padding:8px 0;background:var(--glass-hi);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.fchip{padding:5px 12px;border-radius:999px;font-size:.78rem;border:1px solid var(--line);color:var(--muted)}
+.fchip.on{color:#2a1206;background:var(--gold);border-color:var(--gold)}
+.bcard{display:flex;flex-direction:column;gap:6px;text-align:left;font-size:.76rem;line-height:1.45;color:var(--muted);position:relative}
+.bcard .cf{width:100%;transition:filter .15s,box-shadow .15s}
+.bcard:not(.on) .cf{filter:saturate(.45) brightness(.6)}
+.bcard.on .cf{box-shadow:0 0 0 2px var(--gold-hi),0 0 20px rgba(246,220,150,.55)}
+.bcard.on::after{content:"✓";position:absolute;right:6px;top:6px;z-index:6;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#120a07;background:var(--up)}
+
 /* ---------- signature effects ---------- */
 #fx .sh{position:absolute;pointer-events:none}
 .sh-feather{width:8px;height:22px;border-radius:80% 20% 80% 20%;background:linear-gradient(var(--c,#fff),transparent 140%);box-shadow:0 0 6px var(--c,#fff)}
@@ -441,6 +481,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   <div class="sheet glass menu">
     <div class="sheet-h"><h2>ศึกสามภพ</h2><button class="icon-btn" id="menuClose" type="button" aria-label="กลับไปที่เกม">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <button class="deck-row" id="mDeck" type="button"><span class="deck-l">เด็คของคุณ</span><b id="mDeckName"></b><span class="deck-go">เปลี่ยน ›</span></button>
     <p class="menu-sub">เลือกวิธีเล่น</p>
     <div class="menu-grid">
       <button class="mbtn" id="mAI" type="button"><span class="mav" style="background-image:url(art/cards/tosakan.webp)"></span><b>เล่นกับ AI</b><small>สู้กับทศกัณฐ์ สะสมบารมี</small></button>
@@ -465,6 +506,29 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   </div>
 </div>
 
+<div class="modal" id="decks" hidden>
+  <div class="sheet glass">
+    <div class="sheet-h"><h2>เลือกเด็ค</h2><button class="icon-btn" data-close="decks" type="button" aria-label="ปิด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p class="menu-sub">เด็คหนึ่งมี 12 ใบ แตะเด็คเพื่อดูการ์ด แล้วกด "ใช้เด็คนี้"</p>
+    <div class="dgal" id="deckList"></div>
+  </div>
+</div>
+
+<div class="modal" id="builder" hidden>
+  <div class="sheet glass">
+    <div class="sheet-h"><h2>จัดเด็คเอง</h2><button class="icon-btn" data-close="builder" type="button" aria-label="ปิดโดยไม่บันทึก"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="b-top">
+      <label class="sr" for="bName">ชื่อเด็ค</label>
+      <input id="bName" maxlength="20" placeholder="ตั้งชื่อเด็ค" autocomplete="off">
+      <span class="b-count" id="bCount"></span>
+      <button class="mbtn sm" id="bSave" type="button"><b>บันทึก</b></button>
+    </div>
+    <div class="b-curve" id="bCurve" aria-label="จำนวนการ์ดตามราคา"></div>
+    <div class="b-filters" id="bFilters"></div>
+    <div class="cgal" id="bGrid"></div>
+  </div>
+</div>
+
 <div class="modal" id="inspect" hidden></div>
 
 <div class="modal" id="rules" hidden>
@@ -473,8 +537,8 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <ol>
       <li>สนามมี <b>3 ภพ</b> สุ่มมาจาก 18 แห่ง แต่ละภพมีธาตุและกฎของตัวเอง</li>
-      <li>การ์ดมี 41 ใบ อย่างละใบเดียว แต่ละเกมสุ่มแจกฝ่ายละ 12 ใบตามโค้งราคา (ราคา 1–6 จำนวน 3·3·2·2·1·1) ไม่มีการ์ดซ้ำในเด็ค และไม่มีใบไหนอยู่ทั้งสองฝ่าย</li>
-      <li>การ์ดบางใบ<b>เรียกการ์ด</b>ลงสนาม (ลูกเงือก, เทวดา) การ์ดเรียกไม่อยู่ในเด็คและไม่มีราคา</li>
+      <li>การ์ดมี 44 ใบ เด็คหนึ่งมี 12 ใบไม่ซ้ำกัน เลือก<b>เด็คสำเร็จรูป</b> 6 แนว <b>จัดเด็คเอง</b> หรือใช้เด็คสุ่มได้จากเมนู เมื่อเล่นกับ AI การ์ดของสองฝ่ายจะไม่ซ้ำกัน</li>
+      <li>การ์ดบางใบ<b>เรียกการ์ด</b>ลงสนาม (ผีพราย, ควายธนู, ลูกเงือก, เทวดา) การ์ดเรียกไม่อยู่ในเด็คและไม่มีราคา</li>
       <li>เล่น <b>6 เทิร์น</b> เทิร์นที่ N ได้ <b>บุญ</b> N แต้มไว้ลงการ์ด บุญที่เหลือไม่สะสม</li>
       <li>แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการ ลงได้ภพละ 4 ใบ แตะการ์ดที่เพิ่งลงอีกครั้งเพื่อเก็บคืน</li>
       <li>กด <b>จบเทิร์น</b> แล้วทั้งสองฝ่ายเปิดการ์ดพร้อมกัน เทิร์นคี่เราเปิดก่อน เทิร์นคู่ศัตรูเปิดก่อน</li>
@@ -558,7 +622,7 @@ const CARDS = [
   {id:'dryad', name:'นางไม้', cost:2, power:2, el:'earth', text:'ต่อเนื่อง: การ์ดอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o?1:0},
   {id:'hanuman', name:'หนุมาน', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าศัตรูมีการ์ดในภพนี้มากกว่าเรา +3', reveal:c=>{if(foesAt(c).length>mineAt(c).length) buff(c,3);}},
   {id:'pob', name:'ผีปอบ', cost:2, power:1, el:'earth', dark:1, text:'เมื่อเปิด: กินการ์ดอื่นของเราที่อ่อนที่สุดในภพนี้ แล้วได้พลังของมัน', reveal:c=>{const v=weakest(mineAt(c).filter(x=>x!==c)); if(v){const p=Math.max(0,v.power+v.buff); destroy(v); buff(c,p);}}},
-  {id:'shaman', name:'หมอผี', cost:2, power:3, el:'fire', text:'เมื่อเปิด: กรรมของเรา −2', reveal:c=>addKarma(c.owner,-2)},
+  {id:'shaman', name:'หมอผี', cost:2, power:2, el:'fire', text:'เมื่อเปิด: กรรมของเรา −1 และปลุกผีพรายบริวาร (พลัง 2) ลงภพนี้', reveal:c=>{addKarma(c.owner,-1); summon(c,TOKENS.phrai,c.loc);}},
   {id:'hera', name:'เหรา', cost:2, power:3, el:'water', text:'เมื่อเปิด: ถ้าภพนี้เป็นธาตุน้ำ +2', reveal:c=>{if(locOf(c).el==='water') buff(c,2);}},
   {id:'naga', name:'นาค', cost:3, power:4, el:'water', text:'ต่อเนื่อง: การ์ดธาตุน้ำอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o&&c.el==='water'?1:0},
   {id:'kumphan', name:'กุมภัณฑ์', cost:3, power:5, el:'earth', dark:1, text:''},
@@ -599,10 +663,16 @@ const CARDS = [
     const order = S.locs.map((L,li)=>li).sort((a,b)=>(sideTotal(S.locs[a],c.owner)-sideTotal(S.locs[a],OPP[c.owner]))-(sideTotal(S.locs[b],c.owner)-sideTotal(S.locs[b],OPP[c.owner])));
     for (const li of order) if (summon(c, TOKENS.deva, li)) break;}},
   {id:'indra', name:'พระอินทร์', cost:6, power:5, el:'wind', text:'เมื่อเปิด: วัชระฟาด ทำลายการ์ดศัตรูที่แรงที่สุดในภพนี้', reveal:c=>{const t=strongest(foesAt(c)); if(t) destroy(t);}},
+  // ---- ชุดอัญเชิญ ----
+  {id:'yanang', name:'แม่ย่านาง', cost:2, power:2, el:'water', text:'ต่อเนื่อง: การ์ดเรียกของเราทุกภพ +1', gaura:(o,c)=>c.owner===o.owner&&c.token?1:0},
+  {id:'tani', name:'นางตานี', cost:3, power:2, el:'earth', dark:1, text:'เมื่อเปิด: เรียกผีพราย (พลัง 2) ลงภพอื่นภพละ 1 ตัว', reveal:c=>S.locs.forEach((L,li)=>{if(li!==c.loc) summon(c,TOKENS.phrai,li);})},
+  {id:'ajarn', name:'อาจารย์ไสยเวท', cost:4, power:3, el:'fire', dark:1, text:'เมื่อเปิด: เสกควายธนู (พลัง 4) ลงภพนี้', reveal:c=>summon(c,TOKENS.kwaithanu,c.loc)},
 ];
 // summoned cards: not in any deck, appear on the board from an ability
 const TOKENS = {
   babyngueak:{id:'babyngueak', art:'ngueak', name:'ลูกเงือก', cost:0, power:2, el:'water', token:true, text:'การ์ดเรียก ไม่อยู่ในเด็ค'},
+  phrai:{id:'phrai', name:'ผีพราย', cost:0, power:2, el:null, token:true, text:'การ์ดเรียก ไม่อยู่ในเด็ค'},
+  kwaithanu:{id:'kwaithanu', name:'ควายธนู', cost:0, power:4, el:'earth', token:true, text:'การ์ดเรียก ไม่อยู่ในเด็ค'},
   deva:{id:'deva', name:'เทวดา', cost:0, power:3, el:null, token:true, text:'การ์ดเรียก: ช้างเอราวัณเรียกมา'},
 };
 
@@ -684,7 +754,8 @@ function newGame(opts={}){
   uidN = 0; FX = []; ACTOR = null; lastTotals = []; introPending = true;
   $('#board').innerHTML = ''; $('#hand').innerHTML = '';   // so the new hand is dealt in from the deck
   const locs = shuffle([...LOCS]).slice(0,3).map(L => ({...L, cards:{p:[],a:[]}}));
-  const dk = dealDecks();
+  const mk = ids => shuffle([...ids].sort().map(id => CARDS.find(c => c.id===id)));   // sorted first: same order on both screens
+  const dk = opts.decks ? {p: mk(opts.decks.host), a: mk(opts.decks.guest)} : aiMatchDecks();
   const mine = MODE.role==='guest' ? dk.a : dk.p, theirs = MODE.role==='guest' ? dk.p : dk.a;   // host always gets the first deck
   S = {turn:0, locs, deck:{p:mine.map(d=>inst(d,'p')), a:theirs.map(d=>inst(d,'a'))}, firstOdd: MODE.role==='guest' ? 'a' : 'p',
        hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
@@ -716,6 +787,7 @@ function aiPlan(){
       if (c.el && L.el){ if (c.el===L.el) est++; else if (BEATS[L.el]===c.el) est--; }
       const foes = revealed(L.cards.p), mine = revealed(L.cards.a);
       if (c.id==='phosop' && L.el==='earth') est += 3;
+      if (c.id==='shaman') est += 2; if (c.id==='tani') est += 3; if (c.id==='ajarn') est += 4;
       if (c.id==='pret') est -= 2*L.cards.a.length;
       if (c.id==='indra' && foes.length) est += Math.max(...foes.map(power));
       if ((c.id==='kongkoi' || c.id==='aphai') && foes.length) est += 2;
@@ -1288,6 +1360,11 @@ const SIG = {
   erawan:   c => { rays(c,'#fff6d0',420,1500); shards(c,'puff',10,{color:'rgba(255,255,255,.6)',mode:'out',dist:140,grow:1.8}); quake(1.8); shock(c,'#fff6d0',340); },
   indra:    c => { [-60,0,60].forEach((d,i) => setTimeout(() => bolt({x:c.x+d,y:c.y}, '#fff3c2'), i*130)); rays(c,'#fff3c2',420,1300); quake(2); },
   babyngueak:c => { shards(c,'bubble',10); },
+  yanang:   c => { wave(c,'#3f8fd6'); shards(c,'star',10,{color:'#f6dc96',mode:'rise'}); shock(c,'#bfe9ff',220); },
+  tani:     c => { shards(c,'leaf',18,{color:'#7fe08a',dist:140}); darkPulse(c); shards(c,'ember',10,{color:'#9dff9a',dur:1500}); },
+  ajarn:    c => { yantra(c,'#c9a2ff'); flames(c); quake(.8); },
+  phrai:    c => { shards(c,'puff',8,{color:'rgba(120,200,255,.55)',dist:90,grow:1.8,dur:1100}); shock(c,'#9fdcff',150); },
+  kwaithanu:c => { quake(1.6); dust(c); shards(c,'ember',14,{color:'#ff5a3a',mode:'out',dist:130}); slash(c,'#ff7a3d',0,0,220); },
   deva:     c => { rays(c,'#fff6d0',240,1100); shards(c,'star',8,{color:'#fff6d0',mode:'rise'}); },
 };
 function signature(c, center){ try { (SIG[c.id] || (() => {}))(center); } catch(e){} }
@@ -1389,6 +1466,131 @@ function buildRules(){
   })(0);
 })();
 
+/* ---------- decks: presets, custom slots, deck screen and builder ---------- */
+const PRESETS = {
+  destroy:{name:'วัชระพิฆาต', tag:'ทำลาย · ลดพลัง', tc:'#ff7a62', desc:'กวาดการ์ดศัตรูออกจากสนามและบั่นทอนพลัง ปิดเกมด้วยวัชระของพระอินทร์',
+    ids:['blackcat','karawek','chalawan','pranbun','pob','agni','aphai','kongkoi','garuda','yak','phirun','indra']},
+  buff:{name:'บารมีทวีคูณ', tag:'เพิ่มพลัง', tc:'#8ef07a', desc:'วางการ์ดให้เกาะกลุ่มแล้วบัฟกันเองจนตัวเลขพุ่ง มีคอมโบหนุมานกับองคต',
+    ids:['kumanthong','phosop','novice','dryad','hera','hanuman','lion','naga','khotchasi','ongkot','suvanna','nagaraj']},
+  dark:{name:'ทัพอสูร', tag:'สายมืด · เสี่ยงกรรม', tc:'#b98cff', desc:'การ์ดแรงเกินราคาแลกกับกรรม มีหมอผี เด็กวัด และฤๅษีคอยล้างกรรมให้',
+    ids:['krasue','blackcat','novice','khamot','shaman','kumphan','tglom','kongkoi','pret','nak','tosakan','hermit']},
+  water:{name:'บาดาลนคร', tag:'ธาตุน้ำ', tc:'#4aa8e8', desc:'ฝูงธาตุน้ำเสริมพลังกันเอง นาคกับพญานาคราชยิ่งมีพวกเยอะยิ่งแรง แพ้ทางครุฑ',
+    ids:['goldfish','karawek','kinnaree','hera','chalawan','nangkwak','naga','ngueak','nak','makara','suvanna','nagaraj']},
+  summon:{name:'พิธีอัญเชิญ', tag:'อัญเชิญบริวาร', tc:'#9fdcff', desc:'หมอผี นางตานี และอาจารย์ไสยเวทเรียกบริวารลงเต็มสนาม แม่ย่านางทำให้บริวารทุกตัวแรงขึ้น',
+    ids:['karawek','kumanthong','novice','shaman','yanang','nangkwak','tani','kongkoi','ajarn','ngueak','erawan','vessuwan']},
+  wind:{name:'กองทัพวายุ', tag:'ธาตุลม · เรียกพล', tc:'#4cc39b', desc:'จั่วไว เรียกการ์ดเสริมลงสนาม และมโนราห์ให้ธาตุลมทุกภพแรงขึ้น',
+    ids:['kinnaree','karawek','goldfish','hanuman','nangkwak','dryad','manohra','aphai','ongkot','ngueak','erawan','indra']},
+};
+const ROLE = {
+  destroy:new Set(['blackcat','pob','agni','garuda','pranbun','chalawan','kongkoi','aphai','phirun','indra','yak']),
+  buff:new Set(['kinnaree','dryad','hanuman','hera','naga','lion','khotchasi','hermit','suvanna','nagaraj','kumanthong','phosop','manohra','ongkot','nak']),
+  util:new Set(['goldfish','novice','karawek','nangkwak','khamot','vessuwan']),
+  summon:new Set(['shaman','yanang','tani','ajarn','ngueak','erawan']),
+};
+const FILTERS = [['all','ทั้งหมด'],['in','ในเด็ค'],['destroy','ทำลาย · ลดพลัง'],['buff','เพิ่มพลัง'],['summon','อัญเชิญ'],['dark','สายมืด'],['util','จั่ว · อื่น ๆ']];
+const defOf = id => CARDS.find(c => c.id===id);
+const validDeck = d => Array.isArray(d) && d.length===12 && new Set(d).size===12 && d.every(id => typeof id==='string' && defOf(id));
+const esc = t => String(t).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+let DK = {sel:'random', custom:[null,null,null]};
+try {
+  const v = JSON.parse(localStorage.getItem('samphop-decks'));
+  if (v && typeof v==='object'){
+    if (Array.isArray(v.custom)) DK.custom = [0,1,2].map(i => v.custom[i] && validDeck(v.custom[i].ids) ? {name:String(v.custom[i].name||'').slice(0,20), ids:v.custom[i].ids} : null);
+    if (typeof v.sel==='string') DK.sel = v.sel;
+  }
+} catch(e){}
+const saveDK = () => { try { localStorage.setItem('samphop-decks', JSON.stringify(DK)); } catch(e){} };
+function deckInfo(key){
+  if (PRESETS[key]) return {...PRESETS[key], key};
+  const m = /^c([0-2])$/.exec(key);
+  if (m){ const d = DK.custom[+m[1]]; return {key, slot:+m[1], name: d ? (d.name || `เด็คของฉัน ${+m[1]+1}`) : `ช่องว่าง ${+m[1]+1}`, tag:'จัดเอง', tc:'#f6dc96',
+                                              desc: d ? 'เด็คที่คุณจัดเอง' : 'ยังไม่มีเด็คในช่องนี้ กด "จัดเด็ค" เพื่อเลือกการ์ด 12 ใบ', ids: d ? d.ids : null}; }
+  return {key:'random', name:'เด็คสุ่ม', tag:'สุ่ม', tc:'#a99a86', desc:'สุ่มการ์ด 12 ใบตามโค้งราคาใหม่ทุกเกม ไม่รู้ล่วงหน้าว่าจะได้อะไร', ids:null};
+}
+function currentDeck(){ const d = deckInfo(DK.sel); return d.key!=='random' && !d.ids ? deckInfo('random') : d; }
+const myDeckIds = () => currentDeck().ids;
+
+// The AI takes a different archetype; any card it shares with the player is swapped for another
+// of the same cost, so no card is on both sides.
+function aiDeckFor(mine){
+  const keys = Object.keys(PRESETS).filter(k => PRESETS[k].ids.filter(id => mine.includes(id)).length < 8);
+  const base = PRESETS[keys[Math.floor(rand()*keys.length)] || 'buff'].ids;
+  const used = new Set(mine), out = [];
+  for (const id of base) if (!used.has(id)){ out.push(id); used.add(id); }
+  for (const id of base) if (mine.includes(id)){
+    const want = defOf(id).cost;
+    const pool = shuffle(CARDS.filter(c => !used.has(c.id))).sort((x,y) => Math.abs(x.cost-want) - Math.abs(y.cost-want));
+    if (pool[0]){ out.push(pool[0].id); used.add(pool[0].id); }
+  }
+  return out;
+}
+function aiMatchDecks(){
+  const ids = myDeckIds(); if (!ids) return dealDecks();
+  return {p: shuffle(ids.map(defOf)), a: shuffle(aiDeckFor(ids).map(defOf))};
+}
+
+const curveHTML = ids => `<div class="curve">${[1,2,3,4,5,6].map(n => { const k = ids.filter(id => defOf(id).cost===n).length;
+  return `<i data-c="${n}" style="height:${k*8}px" title="ราคา ${n}: ${k} ใบ"></i>`; }).join('')}</div>`;
+function renderDecks(){
+  const cur = currentDeck().key;
+  $('#mDeckName').textContent = currentDeck().name;
+  $('#deckList').innerHTML = [...Object.keys(PRESETS), 'c0', 'c1', 'c2', 'random'].map(k => {
+    const d = deckInfo(k), ids = d.ids ? [...d.ids].sort((x,y) => defOf(x).cost - defOf(y).cost) : null;
+    const thumbs = ids ? ids.map(id => `<button type="button" data-peek="${id}" style="background-image:url(${cardArt(defOf(id))})" aria-label="${defOf(id).name}"><span>${defOf(id).cost}</span></button>`).join('')
+                       : Array.from({length:12}, () => '<i class="empty"></i>').join('');
+    const usable = k==='random' || ids;
+    return `<div class="dtile ${cur===k?'sel':''}">
+      <div class="dt-h"><b>${esc(d.name)}</b><span class="dtag" style="--tc:${d.tc}">${d.tag}</span></div>
+      <p>${d.desc}</p>
+      <div class="dthumbs">${thumbs}</div>
+      <div class="dt-f">${ids ? curveHTML(ids) : '<span></span>'}
+        <div class="dt-acts">${d.slot!=null ? `<button class="dbtn ghost" type="button" data-edit="${d.slot}">${ids?'แก้ไข':'จัดเด็ค'}</button>` : ''}
+          ${usable ? `<button class="dbtn" type="button" data-use="${k}" ${cur===k?'disabled':''}>${cur===k?'กำลังใช้':'ใช้เด็คนี้'}</button>` : ''}</div></div>
+    </div>`;
+  }).join('');
+}
+$('#deckList').addEventListener('click', e => {
+  const peek = e.target.closest('[data-peek]'); if (peek){ openInspect({...defOf(peek.dataset.peek), buff:0, owner:'p', loc:-1}); return; }
+  const use = e.target.closest('[data-use]'); if (use){ DK.sel = use.dataset.use; saveDK(); renderDecks(); toast(`ใช้เด็ค ${currentDeck().name} ตั้งแต่เกมถัดไป`); return; }
+  const ed = e.target.closest('[data-edit]'); if (ed) openBuilder(+ed.dataset.edit);
+});
+$('#mDeck').addEventListener('click', () => { renderDecks(); $('#decks').hidden = false; });
+
+const B = {slot:0, ids:new Set(), filter:'all'};
+function openBuilder(slot){
+  const d = DK.custom[slot];
+  B.slot = slot; B.ids = new Set(d ? d.ids : []); B.filter = 'all';
+  $('#bName').value = d ? d.name : '';
+  renderBuilder(); $('#builder').hidden = false;
+}
+function renderBuilder(){
+  const n = B.ids.size;
+  $('#bCount').textContent = `${n}/12 ใบ`;
+  $('#bSave').disabled = n!==12;
+  $('#bCurve').innerHTML = curveHTML([...B.ids]);
+  $('#bFilters').innerHTML = FILTERS.map(([k,l]) => `<button class="fchip ${B.filter===k?'on':''}" type="button" data-f="${k}">${l}</button>`).join('');
+  const show = c => B.filter==='all' || (B.filter==='in' ? B.ids.has(c.id) : B.filter==='dark' ? c.dark>0 : ROLE[B.filter].has(c.id));
+  $('#bGrid').innerHTML = [...CARDS].sort((a,b) => a.cost-b.cost).filter(show).map(c =>
+    `<button class="bcard ${B.ids.has(c.id)?'on':''}" type="button" data-id="${c.id}" aria-pressed="${B.ids.has(c.id)}">${cardFace(c)}<div>${c.text || 'ไม่มีความสามารถพิเศษ'}</div></button>`).join('')
+    || '<p class="menu-sub">ยังไม่มีการ์ดในกลุ่มนี้</p>';
+}
+$('#bFilters').addEventListener('click', e => { const f = e.target.closest('[data-f]'); if (f){ B.filter = f.dataset.f; renderBuilder(); } });
+$('#bGrid').addEventListener('click', e => {
+  const b = e.target.closest('[data-id]'); if (!b) return;
+  const id = b.dataset.id;
+  if (B.ids.has(id)) B.ids.delete(id);
+  else if (B.ids.size>=12){ toast('ครบ 12 ใบแล้ว เอาใบอื่นออกก่อน'); return; }
+  else B.ids.add(id);
+  const top = $('#builder .sheet').scrollTop; renderBuilder(); $('#builder .sheet').scrollTop = top;
+});
+$('#bSave').addEventListener('click', () => {
+  if (B.ids.size!==12) return;
+  DK.custom[B.slot] = {name: $('#bName').value.trim().slice(0,20), ids:[...B.ids]};
+  DK.sel = 'c'+B.slot; saveDK();
+  $('#builder').hidden = true; renderDecks(); toast(`บันทึกแล้ว ใช้เด็ค ${currentDeck().name}`);
+});
+
 /* ---------- friend matches over a live room ----------
    Each room code is a named room. Both players run this same engine from one shared seed
    (the host's), and each publishes only its own moves in its room presence:
@@ -1451,7 +1653,7 @@ async function enterRoom(code, role){
     return;
   }
   Object.assign(NET, {nr, role, code, game:0, opp:null, oppBy:null, started:false, waiters:[], me:{}});
-  const base = {sp:1, role, done:0, moves:{}, vow:false, retreat:false};
+  const base = {sp:1, role, done:0, moves:{}, vow:false, retreat:false, deck: myDeckIds() || dealDecks().p.map(d => d.id)};
   netSet(role==='host' ? {...base, g:1, seed: Math.floor(Math.random()*2147483647)} : {...base, g:0});
   NET.offPeers = nr.onPeers(onRoomPeers, () => { if (MODE.pvp && S.phase!=='over') toast('การเชื่อมต่อห้องหลุด'); });
   menuState(role==='host' ? 'hosting' : 'joining', code);
@@ -1483,7 +1685,8 @@ function onRoomPeers(ch){
   const pr = o.presence;
   const fresh = NET.oppBy!==o.by;
   NET.opp = pr; NET.oppBy = o.by;
-  if (NET.role==='host' && NET.game!==NET.me.g) startPvP(NET.me.seed, NET.me.g);
+  if (!validDeck(pr.deck)){ /* friend's deck not here yet */ }
+  else if (NET.role==='host' && NET.game!==NET.me.g) startPvP(NET.me.seed, NET.me.g);
   else if (NET.role==='guest' && Number.isInteger(pr.seed) && Number.isInteger(pr.g) && pr.g>0 && pr.g!==NET.game) startPvP(pr.seed, pr.g);
   else if (fresh) loadFoeIdentity();
   if (!NET.started || pr.g!==NET.game || !MODE.pvp) return;
@@ -1497,14 +1700,15 @@ function startPvP(seed, g){
   NET.game = g; NET.started = true; NET.waiters = [];
   netSet({g, moves:{}, done:0, vow:false, retreat:false});
   $('#menu').hidden = true; $('#endModal').hidden = true;
-  newGame({pvp:true, role:NET.role, seed});
+  const host = NET.role==='host';
+  newGame({pvp:true, role:NET.role, seed, decks:{host: host ? NET.me.deck : NET.opp.deck, guest: host ? NET.opp.deck : NET.me.deck}});
   loadFoeIdentity();
   toast(`เริ่มศึก! ห้อง ${NET.code}`);
 }
 function pvpRematch(){
   if (NET.role!=='host' || !NET.nr) return;
   netSet({g: NET.game + 1, seed: Math.floor(Math.random()*2147483647)});
-  if (NET.opp) startPvP(NET.me.seed, NET.me.g);
+  if (NET.opp && validDeck(NET.opp.deck)) startPvP(NET.me.seed, NET.me.g);
 }
 function oppLeft(){
   if (!MODE.pvp || !S || S.phase==='over') return;
@@ -1518,6 +1722,8 @@ function menuMsg(t){ $('#menuMsg').textContent = t; }
 function menuState(st, code){
   const off = !NET.room;
   $('#mHost').disabled = off || st==='connecting';
+  $('#mDeck').disabled = st!=='idle';   // the deck is locked in once you are in a room
+  $('#mDeckName').textContent = currentDeck().name;
   $('#mJoin').disabled = off || st==='connecting'; $('#mCode').disabled = off;
   $('#netNote').textContent = off
     ? 'เล่นกับเพื่อนได้เมื่อเปิดเกมนี้ใน claude.ai (ไฟล์ที่เปิดตรง ๆ เล่นได้แค่กับ AI)'

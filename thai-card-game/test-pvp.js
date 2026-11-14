@@ -32,6 +32,7 @@ const FAKE_ROOM = () => {
     await pg.goto('file://' + __dirname + '/index.html');
   }
   await host.waitForTimeout(800);
+  await host.evaluate(() => { DK.sel = 'destroy'; }); await guest.evaluate(() => { DK.sel = 'summon'; });
   await host.click('#mHost');
   await host.waitForSelector('#roomCode:not(:empty)');
   const code = await host.textContent('#roomCode');
@@ -47,6 +48,7 @@ const FAKE_ROOM = () => {
     tp: sideTotal(L, 'p'), ta: sideTotal(L, 'a')})));
   const sameDecks = await Promise.all([host, guest].map(pg => pg.evaluate(() => [S.deck.p.map(c=>c.id).join(), S.deck.a.map(c=>c.id).join()])));
   console.log('decks mirrored:', sameDecks[0][0] === sameDecks[1][1] && sameDecks[0][1] === sameDecks[1][0]);
+  console.log('host plays destroy deck, guest plays summon deck:', await host.evaluate(() => [...S.deck.p, ...S.hand.p].every(c => PRESETS.destroy.ids.includes(c.id)) && [...S.deck.a, ...S.hand.a].every(c => PRESETS.summon.ids.includes(c.id))));
 
   let mismatches = 0;
   for (let t = 1; t <= 6; t++) {
