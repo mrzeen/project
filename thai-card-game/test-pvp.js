@@ -45,13 +45,14 @@ const FAKE_ROOM = () => {
 
   const snapshot = pg => pg.evaluate(() => S.locs.map(L => ({
     id: L.id, p: L.cards.p.map(c => c.id + ':' + power(c)).join(','), a: L.cards.a.map(c => c.id + ':' + power(c)).join(','),
-    tp: sideTotal(L, 'p'), ta: sideTotal(L, 'a')})));
+    tp: sideTotal(L, 'p'), ta: sideTotal(L, 'a'), hp: S.hp.p, ho: S.hp.a})));
   const sameDecks = await Promise.all([host, guest].map(pg => pg.evaluate(() => [S.deck.p.map(c=>c.id).join(), S.deck.a.map(c=>c.id).join()])));
   console.log('decks mirrored:', sameDecks[0][0] === sameDecks[1][1] && sameDecks[0][1] === sameDecks[1][0]);
   console.log('host plays destroy deck, guest plays summon deck:', await host.evaluate(() => [...S.deck.p, ...S.hand.p].every(c => PRESETS.destroy.ids.includes(c.id)) && [...S.deck.a, ...S.hand.a].every(c => PRESETS.summon.ids.includes(c.id))));
 
   let mismatches = 0;
-  for (let t = 1; t <= 6; t++) {
+  for (let t = 1; t <= 8; t++) {
+    if (await host.evaluate(() => S.phase === 'over')) break;
     for (const pg of [host, guest]) {
       for (let k = 0; k < 3; k++) {
         const ok = await pg.evaluate(() => {
@@ -70,9 +71,9 @@ const FAKE_ROOM = () => {
     for (const pg of [host, guest])
       await pg.waitForFunction(n => (S.phase === 'play' && S.turn === n + 1) || S.phase === 'over', t, {timeout: 30000});
     const [a, g] = [await snapshot(host), await snapshot(guest)];
-    const mirrored = a.every((L, i) => L.id === g[i].id && L.p === g[i].a && L.a === g[i].p && L.tp === g[i].ta && L.ta === g[i].tp);
+    const mirrored = a.every((L, i) => L.id === g[i].id && L.p === g[i].a && L.a === g[i].p && L.tp === g[i].ta && L.ta === g[i].tp && L.hp === g[i].ho && L.ho === g[i].hp);
     if (!mirrored) { mismatches++; console.log('MISMATCH turn', t, JSON.stringify(a), JSON.stringify(g)); }
-    console.log(`turn ${t}: ` + a.map(L => `${L.id} ${L.tp}-${L.ta}`).join(' | ') + (mirrored ? '  ✓ ตรงกัน' : '  ✗'));
+    console.log(`turn ${t}: ` + a.map(L => `${L.id} ${L.tp}-${L.ta}`).join(' | ') + `  HP ${a[0].hp}-${a[0].ho}` + (mirrored ? '  ✓ ตรงกัน' : '  ✗'));
   }
   await host.waitForTimeout(1500);
   const res = await Promise.all([host, guest].map(pg => pg.evaluate(() => [document.querySelector('#endTitle').textContent, S.stakes])));

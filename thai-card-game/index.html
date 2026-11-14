@@ -306,6 +306,19 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 .end-acts{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
 .end-acts .end-btn{margin:0}
 
+/* ---------- HP and strikes ---------- */
+.hpbar{position:relative;height:15px;min-width:74px;border-radius:999px;background:rgba(0,0,0,.55);box-shadow:0 0 0 1px rgba(246,220,150,.45);overflow:hidden;margin:3px 0 2px}
+.hpbar i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(180deg,#b6f08a,#3f9a3a);transition:width .5s cubic-bezier(.3,.8,.3,1)}
+.hpbar.enemy i{background:linear-gradient(180deg,#ff9a7d,#c8321e)}
+.hpbar b{position:relative;display:block;text-align:center;font-size:.7rem;line-height:15px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000;font-variant-numeric:tabular-nums}
+.hpbar.low{animation:lowhp 1s ease-in-out infinite}
+@keyframes lowhp{50%{box-shadow:0 0 0 1px #ff7a62,0 0 12px #ff5a45}}
+.dmg{position:absolute;right:4px;z-index:4;padding:0 7px;border-radius:999px;font-weight:800;font-size:.78rem;line-height:1.5;font-variant-numeric:tabular-nums;
+  color:#fff;background:linear-gradient(180deg,#ff6a55,#a81e12);box-shadow:0 0 0 1px #ffc2b0,0 0 10px rgba(255,80,60,.6)}
+.dmg.a{top:-11px} .dmg.p{bottom:-11px}
+#fx .hitnum{position:absolute;font:800 2.2rem/1 var(--f-ui);font-style:normal;text-shadow:0 0 14px currentColor,0 3px 4px #000;pointer-events:none}
+.dock .who-t{min-width:76px}
+
 /* ---------- decks ---------- */
 .deck-row{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:14px;text-align:left;color:var(--ink);
   border:1px solid var(--gold);background:linear-gradient(90deg,rgba(246,220,150,.14),rgba(246,220,150,.03))}
@@ -440,7 +453,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   <header class="hud glass">
     <div class="who">
       <div class="avatar enemy" id="foeAvatar" style="background-image:url(art/cards/tosakan.webp)"></div>
-      <div class="who-t"><div class="who-n" id="foeName">ทศกัณฐ์</div><div class="who-s" id="aiStat"></div></div>
+      <div class="who-t"><div class="who-n" id="foeName">ทศกัณฐ์</div><div class="hpbar enemy" id="foeHp"></div><div class="who-s" id="aiStat"></div></div>
     </div>
     <div class="turn" id="turnBox"></div>
     <div class="hud-r">
@@ -462,8 +475,8 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   <footer class="dock glass">
     <div class="dock-l">
       <div class="who">
-        <div class="avatar" style="background-image:url(art/cards/hanuman.webp)"></div>
-        <div class="who-t"><div class="who-n">คุณ</div><div class="who-s" id="pStat"></div></div>
+        <div class="avatar" id="meAvatar" style="background-image:url(art/cards/hanuman.webp)"></div>
+        <div class="who-t"><div class="who-n">คุณ</div><div class="hpbar" id="meHp"></div><div class="who-s" id="pStat"></div></div>
       </div>
     </div>
     <div class="dock-r">
@@ -539,10 +552,12 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
       <li>สนามมี <b>3 ภพ</b> สุ่มมาจาก 18 แห่ง แต่ละภพมีธาตุและกฎของตัวเอง</li>
       <li>การ์ดมี 44 ใบ เด็คหนึ่งมี 12 ใบไม่ซ้ำกัน เลือก<b>เด็คสำเร็จรูป</b> 6 แนว <b>จัดเด็คเอง</b> หรือใช้เด็คสุ่มได้จากเมนู เมื่อเล่นกับ AI การ์ดของสองฝ่ายจะไม่ซ้ำกัน</li>
       <li>การ์ดบางใบ<b>เรียกการ์ด</b>ลงสนาม (ผีพราย, ควายธนู, ลูกเงือก, เทวดา) การ์ดเรียกไม่อยู่ในเด็คและไม่มีราคา</li>
-      <li>เล่น <b>6 เทิร์น</b> เทิร์นที่ N ได้ <b>บุญ</b> N แต้มไว้ลงการ์ด บุญที่เหลือไม่สะสม</li>
+      <li>แต่ละฝ่ายมี<b>เลือด 25</b> เทิร์นที่ N ได้ <b>บุญ</b> N แต้มไว้ลงการ์ด บุญที่เหลือไม่สะสม</li>
       <li>แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการ ลงได้ภพละ 4 ใบ แตะการ์ดที่เพิ่งลงอีกครั้งเพื่อเก็บคืน</li>
       <li>กด <b>จบเทิร์น</b> แล้วทั้งสองฝ่ายเปิดการ์ดพร้อมกัน เทิร์นคี่เราเปิดก่อน เทิร์นคู่ศัตรูเปิดก่อน</li>
-      <li>จบเทิร์นที่ 6 ใครมีพลังรวมมากกว่า <b>2 ใน 3 ภพ</b> ชนะ ถ้าเสมอให้ดูพลังรวมทั้งสนาม</li>
+      <li><b>จบทุกเทิร์น แต่ละภพจะตีกัน:</b> ฝ่ายที่พลังรวมมากกว่าในภพนั้นตีอีกฝ่ายเท่ากับส่วนต่าง (สูงสุด 6 ต่อภพ) ตัวเลขสีแดงบนภพบอกว่าใครจะโดนเท่าไร</li>
+      <li>ใคร<b>เลือดหมดก่อนแพ้</b> ถ้าครบ 8 เทิร์นแล้วยังไม่มีใครล้ม ฝ่ายที่เลือดมากกว่าชนะ</li>
+      <li><b>แรงฮึด:</b> ฝ่ายที่เลือดน้อยกว่าได้บุญ +1 ในเทิร์นถัดไป (+2 ถ้าตามหลัง 5 ขึ้นไป)</li>
     </ol>
     <h3>ธาตุ</h3>
     <p>การ์ดธาตุเดียวกับภพได้ +1 · การ์ดที่ธาตุของภพข่มอยู่ได้ −1<br>น้ำข่มไฟ · ไฟข่มลม · ลมข่มดิน · ดินข่มน้ำ</p>
@@ -757,7 +772,7 @@ function newGame(opts={}){
   const mk = ids => shuffle([...ids].sort().map(id => CARDS.find(c => c.id===id)));   // sorted first: same order on both screens
   const dk = opts.decks ? {p: mk(opts.decks.host), a: mk(opts.decks.guest)} : aiMatchDecks();
   const mine = MODE.role==='guest' ? dk.a : dk.p, theirs = MODE.role==='guest' ? dk.p : dk.a;   // host always gets the first deck
-  S = {turn:0, locs, deck:{p:mine.map(d=>inst(d,'p')), a:theirs.map(d=>inst(d,'a'))}, firstOdd: MODE.role==='guest' ? 'a' : 'p',
+  S = {turn:0, locs, deck:{p:mine.map(d=>inst(d,'p')), a:theirs.map(d=>inst(d,'a'))}, firstOdd: MODE.role==='guest' ? 'a' : 'p', hp:{p:HP0, a:HP0}, rally:{p:0,a:0},
        hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
        pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null};
   for (let i=0;i<3;i++){ draw('p'); draw('a'); }
@@ -767,10 +782,10 @@ function newGame(opts={}){
 
 function startTurn(){
   S.turn++;
-  for (const s of ['p','a']){ S.energy[s] = S.maxE[s] = S.turn + S.bonus[s]; S.bonus[s]=0; draw(s); }
+  for (const s of ['p','a']){ S.rally[s] = rallyFor(s); S.energy[s] = S.maxE[s] = S.turn + S.bonus[s] + S.rally[s]; S.bonus[s]=0; draw(s); }
   S.phase = 'play';
   FX.push({t:'banner', text: S.turn===4 ? 'ยามค่ำมาเยือน' : `เทิร์น ${thNum(S.turn)}`,
-           sub: S.turn===4 ? 'การ์ดสายมืดทุกใบ +1' : S.turn===6 ? 'เทิร์นสุดท้าย' : `บุญ ${S.energy.p}`});
+           sub: S.turn===4 ? 'การ์ดสายมืดทุกใบ +1' : S.turn===MAXT ? 'เทิร์นสุดท้าย' : `บุญ ${S.energy.p}${S.rally.p ? ` · แรงฮึด +${S.rally.p}` : ''}`});
   render();
   if (!MODE.pvp && aiRetreatCheck()) return;
 }
@@ -803,7 +818,9 @@ function aiPlan(){
       if (c.id==='pob' && !revealed(L.cards.a).length) est -= 3;
       const diff = sideTotal(L,'a') - sideTotal(L,'p');
       let s = est;
-      if (diff>=-8 && diff<=4) s += 3; else if (diff>12) s -= 4; else if (diff<-14) s -= 3;
+      if (diff>=LANE_CAP) s -= 4;                    // already striking for the cap here
+      else if (diff + est <= -LANE_CAP) s -= 4;      // too far behind to change the hit
+      else s += 3;
       s -= L.cards.a.length*0.6;
       s += Math.random()*2;
       if (s>bs){ bs=s; best=li; }
@@ -825,7 +842,7 @@ function aiVowCheck(){
   }
 }
 function aiRetreatCheck(){
-  if (S.turn>=5 && S.stakes>=2 && lanesLead('p',7)>=2){
+  if (S.stakes>=2 && S.hp.a<=6 && S.hp.p - S.hp.a >= 10){
     finish('a-retreat'); return true;
   }
   return false;
@@ -871,7 +888,11 @@ async function endTurn(){
   await wait(200); if (!alive()) return;
   const hit = karmaCheck(); render();
   if (hit){ await wait(900); if (!alive()) return; }
-  if (S.turn>=6){ await wait(900); if (!alive()) return; finish(); return; }
+  for (const h of clashList()){           // the realms strike, left to right
+    S.hp[h.loser] -= h.dmg; FX.push({t:'hit', ...h});
+    render(); await wait(680); if (!alive()) return;
+  }
+  if (S.hp.p<=0 || S.hp.a<=0 || S.turn>=MAXT){ await wait(600); if (!alive()) return; finish(); return; }
   if (!MODE.pvp) aiVowCheck();
   await wait(250); if (!alive()) return;
   startTurn();
@@ -889,11 +910,19 @@ function karmaCheck(){
   return hit;
 }
 
+// Battle rules: each side has HP. After every turn's reveals, in each realm the stronger side
+// strikes the other for the difference in power (capped per realm). First to 0 loses; if both
+// survive the last turn, the higher HP wins.
+let HP0 = 25, MAXT = 8, LANE_CAP = 6, RALLY = [1, 5];   // RALLY: +1 energy when behind, +2 when behind by RALLY[1] or more
+const rallyFor = s => { const gap = S.hp[OPP[s]] - S.hp[s]; return !RALLY[0] || gap<=0 ? 0 : gap>=RALLY[1] ? RALLY[0]+1 : RALLY[0]; };
+function clashList(){
+  const out = [];
+  S.locs.forEach((L, li) => { const d = sideTotal(L,'p') - sideTotal(L,'a');
+    if (d) out.push({li, loser: d>0 ? 'a' : 'p', dmg: Math.min(Math.abs(d), LANE_CAP)}); });
+  return out;
+}
 function result(){
-  const w={p:0,a:0}, tot={p:0,a:0};
-  S.locs.forEach(L => { const p=sideTotal(L,'p'), a=sideTotal(L,'a'); tot.p+=p; tot.a+=a; if(p>a) w.p++; else if(a>p) w.a++; });
-  if (w.p!==w.a) return w.p>w.a ? 'p' : 'a';
-  if (tot.p!==tot.a) return tot.p>tot.a ? 'p' : 'a';
+  if (S.hp.p!==S.hp.a) return S.hp.p>S.hp.a ? 'p' : 'a';
   return null;
 }
 
@@ -917,9 +946,11 @@ function finish(reason){
     text = 'เกมนี้จบลงเพราะอีกฝ่ายหลุดหรือออกจากห้อง';
   } else {
     const w = result(); win = w==='p';
-    if (w==='p'){ delta = S.stakes; title = 'ชนะศึก!'; text = pvp ? `ยึดภพได้มากกว่า${foe}` : `ยึดภพได้มากกว่า ได้บารมี ${delta} แต้ม`; }
-    else if (w==='a'){ delta = -S.stakes; title = 'พ่ายแพ้'; text = pvp ? `${foe}ยึดภพได้มากกว่า` : `ศัตรูยึดภพได้มากกว่า เสียบารมี ${-delta} แต้ม`; }
-    else { delta = 0; title = 'เสมอ'; text = pvp ? 'พลังเท่ากันทุกทาง' : 'พลังเท่ากันทุกทาง ไม่มีใครได้เสียบารมี'; }
+    const hpLine = S.hp.p<=0 && S.hp.a<=0 ? `ล้มพร้อมกัน! เราโดนเกิน ${-S.hp.p} · ${foe}โดนเกิน ${-S.hp.a} (ใครโดนเกินน้อยกว่าชนะ)`
+                 : `เลือด เรา ${Math.max(0,S.hp.p)} · ${foe} ${Math.max(0,S.hp.a)}`;
+    if (w==='p'){ delta = S.stakes; title = S.hp.a<=0 ? 'โค่นสำเร็จ!' : 'ชนะศึก!'; text = pvp ? hpLine : `${hpLine} · ได้บารมี ${delta} แต้ม`; }
+    else if (w==='a'){ delta = -S.stakes; title = 'พ่ายแพ้'; text = pvp ? hpLine : `${hpLine} · เสียบารมี ${-delta} แต้ม`; }
+    else { delta = 0; title = 'เสมอ'; text = hpLine; }
   }
   const total = pvp ? null : getBarami() + delta; if (!pvp) setBarami(total);
   $('#endSheet').classList.toggle('lose', !win);
@@ -1022,9 +1053,14 @@ function render(){
   document.body.classList.toggle('night', S.turn>=4);
 
   $('#turnBox').innerHTML = `<div class="turn-l">${S.turn>=4?'ยามค่ำ':'เทิร์น'}</div>
-    <div class="turn-n">${thNum(S.turn)}<small>/${thNum(6)}</small></div>
-    <div class="turn-dots">${Array.from({length:6},(_,i)=>`<i class="${i+1<S.turn?'on':i+1===S.turn?'cur':''}"></i>`).join('')}</div>`;
+    <div class="turn-n">${thNum(S.turn)}<small>/${thNum(MAXT)}</small></div>
+    <div class="turn-dots">${Array.from({length:MAXT},(_,i)=>`<i class="${i+1<S.turn?'on':i+1===S.turn?'cur':''}"></i>`).join('')}</div>`;
   $('#stakeCoin').textContent = `×${S.stakes}`;
+  for (const [id, sd] of [['#foeHp','a'], ['#meHp','p']]){
+    const v = Math.max(0, S.hp[sd]), el = $(id);
+    el.innerHTML = `<i style="width:${Math.min(100, v/HP0*100)}%"></i><b>${v}</b>`;
+    el.classList.toggle('low', v<=7); el.setAttribute('aria-label', `เลือด ${v}`);
+  }
   $('#aiStat').innerHTML = `<span>มือ ${S.hand.a.length}</span>${karmaPips(S.karma.a)}${S.vowed.a?'<span>· ลั่นวาจา</span>':''}`;
   $('#pStat').innerHTML = `${karmaPips(S.karma.p)}<span>กอง ${S.deck.p.length} · บารมี ${getBarami()}</span>`;
 
@@ -1044,6 +1080,7 @@ function render(){
           <div class="loc-rule">${L.text}</div>
         </div>
         <div class="medal p ${p>a?'win':''} ${lastTotals[li] && lastTotals[li].p!==p?'bump':''}" aria-label="พลังเรา ${p}">${p}</div>
+        ${p!==a ? `<div class="dmg ${p>a?'a':'p'}" aria-label="${p>a?'ศัตรู':'เรา'}จะโดนตี ${Math.min(Math.abs(p-a),LANE_CAP)}">−${Math.min(Math.abs(p-a),LANE_CAP)}</div>` : ''}
       </div>
       <div class="slots p ${target}" data-li="${li}">${slotsHTML(L,'p')}</div>
     </section>`;
@@ -1079,7 +1116,7 @@ function render(){
   const endBtn = $('#btnEnd');
   endBtn.disabled = !playing;
   endBtn.querySelector('b').textContent = S.phase==='reveal' ? 'กำลังเปิด' : S.phase==='wait' ? `รอ${foeName()}` : 'จบเทิร์น';
-  $('#endSub').textContent = `เทิร์น ${thNum(S.turn)}/${thNum(6)}`;
+  $('#endSub').textContent = `เทิร์น ${thNum(S.turn)}/${thNum(MAXT)}`;
   const canStillPlay = S.hand.p.some(c => c.cost<=S.energy.p && S.locs.some((L,li)=>canPlace(c,li)));
   endBtn.classList.toggle('ready', playing && !canStillPlay);
   $('#btnVow').disabled = !playing || S.vowed.p;
@@ -1172,6 +1209,11 @@ function runFX(before){
       const b = before[f.uid]; if (b && b.html) later(380, () => shatter(b.r, b.html));
     } else if (f.t==='shake'){
       $('#board').animate([{transform:'none'},{transform:'translate(-5px,2px)'},{transform:'translate(5px,-2px)'},{transform:'translate(-3px,1px)'},{transform:'none'}], {duration:360});
+    } else if (f.t==='hit'){
+      const lane = document.querySelectorAll('#board .lane')[f.li];
+      const from = lane?.querySelector(f.loser==='a' ? '.medal.p' : '.medal.a')?.getBoundingClientRect();
+      const to = $(f.loser==='a' ? '#foeAvatar' : '#meAvatar').getBoundingClientRect();
+      if (from) strike(mid(from), mid(to), f.dmg, f.loser);
     } else if (f.t==='banner'){
       banner(f.text, f.sub);
     }
@@ -1391,6 +1433,25 @@ function showcase(c){
     {transform:'scale(1.06) rotateZ(-1.5deg)', opacity:1, offset:.72},
     {transform:`translate(${dx}px,${dy}px) scale(${sc})`, opacity:1}],
     {duration:1250, easing:'cubic-bezier(.3,.9,.3,1)'}).finished.then(() => box.remove(), () => box.remove());
+}
+
+// A realm strikes: a bolt of light flies from the winning total to the loser's portrait.
+function strike(a, b, dmg, loser){
+  const color = loser==='p' ? '#ff5a45' : '#ffd27a';
+  const o = particle(a.x, a.y, color, 12); o.classList.add('orbfx'); o.style.color = color;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  slash(a, color, Math.atan2(dy, dx)*180/Math.PI, 0, 120);
+  o.animate([{transform:'translate(-50%,-50%) scale(.4)', opacity:0}, {transform:`translate(calc(-50% + ${dx*.4}px), calc(-50% + ${dy*.4}px)) scale(${1.2+dmg*.15})`, opacity:1, offset:.4},
+             {transform:`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1)`, opacity:1}], {duration:360, easing:'cubic-bezier(.5,0,.8,.4)'}).onfinish = () => {
+    o.remove(); shock(b, color, 90 + dmg*22); burst(b, color, null, 6 + dmg*2);
+    const n = fxEl('hitnum', `left:${b.x}px;top:${b.y}px;color:${loser==='p' ? '#ff7a62' : '#ffe7a6'}`); n.textContent = '−' + dmg;
+    n.animate([{transform:'translate(-50%,-50%) scale(.4)', opacity:0}, {transform:'translate(-50%,-50%) scale(1.5)', opacity:1, offset:.25},
+               {transform:`translate(-50%,${loser==='p' ? -160 : 60}%) scale(1)`, opacity:0}], {duration:1000, easing:'ease-out'}).onfinish = () => n.remove();
+    const bar = $(loser==='a' ? '.hud' : '.dock');
+    bar.animate([{transform:'none'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(-3px)'},{transform:'none'}], {duration:300});
+    if (loser==='p') flash(`rgba(255,40,30,${Math.min(.3, .08 + dmg*.035)})`);
+    if (dmg>=5) quake(1);
+  };
 }
 
 function banner(text, sub){
