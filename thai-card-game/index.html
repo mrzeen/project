@@ -87,7 +87,11 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 
 .el-earth{--elc:var(--earth)} .el-water{--elc:var(--water)} .el-wind{--elc:var(--wind)} .el-fire{--elc:var(--fire)} .el-none{--elc:var(--none)}
 .slots{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;aspect-ratio:4/5.2;border-radius:10px;transition:background .2s;
-  width:100%;max-width:168px;margin-inline:auto}
+  width:100%;margin-inline:auto;
+  /* size the slots from the screen height so the whole battle fits on one phone screen */
+  --fixed:575px;  /* everything on screen except the two slot grids */
+  max-width:clamp(56px,calc((100vh - var(--fixed)) / 2.6),168px);max-width:clamp(56px,calc((100dvh - var(--fixed)) / 2.6),168px)}
+@media (min-width:600px){ .slots{--fixed:630px} }
 .slot{border-radius:7px;background:url(art/ui/slot.webp) center/100% 100% no-repeat;opacity:.42}
 .slots.a .slot{opacity:.22;filter:hue-rotate(-18deg) saturate(1.4)}
 .slots.p.target{cursor:pointer;background:rgba(246,220,150,.07)}
@@ -181,12 +185,13 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 .tip .chip.dark{background:var(--karma)}
 .tip-hint{color:var(--muted)}
 
-.hand{position:relative;display:flex;justify-content:center;align-items:flex-end;height:clamp(150px,36vw,196px);padding-top:26px}
-.hc{--r:0deg;--y:0px;position:relative;flex:0 0 auto;width:clamp(86px,23vw,118px);transform:translateY(var(--y)) rotate(var(--r));
+/* the hand is the card height plus 42px headroom, so a lifted card never covers the info box */
+.hand{--cw:clamp(86px,23vw,118px);position:relative;display:flex;justify-content:center;align-items:flex-end;height:calc(var(--cw) * 4 / 3 + 42px)}
+.hc{--r:0deg;--y:0px;position:relative;flex:0 0 auto;width:var(--cw);transform:translateY(var(--y)) rotate(var(--r));
   transform-origin:50% 140%;transition:transform .22s cubic-bezier(.2,.8,.3,1.2),filter .2s}
 .hc:hover{transform:translateY(calc(var(--y) - 12px)) rotate(var(--r));z-index:20}
 .hc:hover .cf-sheen{animation:sweep .9s ease-out}
-.hc.sel{transform:translateY(-30px) rotate(0) scale(1.1);z-index:30}
+.hc.sel{transform:translateY(-24px) rotate(0) scale(1.06);z-index:30}
 .hc.sel .cf{box-shadow:0 0 0 2px var(--gold-hi),0 0 28px rgba(246,220,150,.7),0 14px 30px rgba(0,0,0,.6)}
 .hc.no .cf{filter:saturate(.3) brightness(.55)}
 .hand-empty{align-self:center;color:var(--muted);font-size:.85rem}
@@ -290,6 +295,13 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   color:#2a1206;background:linear-gradient(180deg,#fff3c2,#e0aa45)}
 .cf.token::after{background:linear-gradient(145deg,#f2f6ff,#a8b9d6 30%,#58627a 55%,#e6ecf7 80%,#9aa7c0)}
 
+@media (max-height:860px){
+  .app{gap:8px;padding-block:8px 10px}
+  .lane{gap:10px}
+  .loc{min-height:96px;padding:18px 5px 16px}
+  .loc-rule{min-height:0}
+  .tip{min-height:44px;padding:5px 12px}
+}
 @media (max-width:440px){
   body{font-size:14px}
   .hud{padding:6px 8px}
@@ -826,7 +838,7 @@ function render(){
   const n = S.hand.p.length;
   $('#hand').innerHTML = S.hand.p.map((c,i) => {
     const off = i-(n-1)/2;
-    const r = n>1 ? off*Math.min(6, 28/n) : 0, y = Math.abs(off)**1.6*4;
+    const r = n>1 ? off*Math.min(6, 28/n) : 0, y = Math.abs(off)**1.6*2.5;
     return `<button class="hc ${S.sel===c.uid?'sel':''} ${c.cost>S.energy.p?'no':''}" style="--r:${r}deg;--y:${y}px" data-uid="${c.uid}" type="button" aria-label="${c.name} ราคา ${c.cost} พลัง ${c.power+c.buff}">
       ${cardFace(c)}</button>`;
   }).join('') || '<span class="hand-empty">มือว่าง</span>';
@@ -1025,7 +1037,7 @@ function banner(text, sub){
 function fanHand(){
   const hand = $('#hand'), cards = [...hand.querySelectorAll('.hc')];
   if (cards.length<2) return;
-  const w = cards[0].getBoundingClientRect().width / (cards[0].classList.contains('sel') ? 1.1 : 1);
+  const w = cards[0].getBoundingClientRect().width / (cards[0].classList.contains('sel') ? 1.06 : 1);
   const avail = hand.clientWidth - 8;
   const step = Math.min(w*0.8, (avail - w)/(cards.length-1));
   cards.forEach((c,i) => { c.style.marginLeft = i ? `${step - w}px` : '0'; });
