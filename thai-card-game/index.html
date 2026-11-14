@@ -6,194 +6,340 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600;700&family=Chonburi&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chonburi&family=Kanit:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: three realms side by side like panels of a lacquered temple door; enemy above, us below, hand docked underneath. Single dark lacquer-and-gold look by choice. */
+/* Layout: one-screen battle — glass HUD on top, three realm columns (each lit by its own art) in the middle,
+   a fanned hand and an energy orb + end-turn dock at the bottom. Single dark lacquer-and-gold look by choice. */
 :root{
-  --bg:#170c0a; --panel:#24130f; --panel-2:#331b15; --line:#5c3b22;
-  --gold:#d8a642; --gold-hi:#f3d68c; --ink:#f5ead6; --muted:#b59c7e;
-  --lac:#9b231c; --lac-2:#6e1612; --mat:#0d0806; --shade:rgba(8,3,2,.72);
-  --earth:#b9813f; --water:#3b8fc8; --wind:#3fa383; --fire:#d9552e; --none:#8a7a68;
-  --karma:#a678e0; --up:#9fe08a; --down:#ff8a72;
-  --f-display:'Chonburi','Bai Jamjuree',Georgia,serif;
-  --f-body:'Bai Jamjuree','Noto Sans Thai','Leelawadee UI',system-ui,sans-serif;
+  --bg:#0a0605; --bg-2:#160c09; --glass:rgba(22,12,9,.62); --glass-hi:rgba(40,22,15,.78);
+  --line:rgba(216,166,66,.28); --gold:#d8a642; --gold-hi:#f6dc96; --gold-lo:#8a5a12;
+  --ink:#f7eddc; --muted:#bba78b; --lac:#9b231c; --enemy:#e2553f;
+  --earth:#d39a4c; --water:#4aa8e8; --wind:#4cc39b; --fire:#ff6a3d; --none:#a99a86;
+  --karma:#b98cff; --boon:#5cc8ff; --up:#8ef07a; --down:#ff7a62;
+  --f-display:'Chonburi','Kanit',Georgia,serif;
+  --f-ui:'Kanit','Noto Sans Thai','Leelawadee UI',system-ui,sans-serif;
+  --night:0;
   color-scheme:dark;
 }
 html,body{height:100%}
-body{
-  background-color:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px;
-  background-image:radial-gradient(rgba(216,166,66,.08) 1px,transparent 1.6px);
-  background-size:16px 16px;
-}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
-.app{
-  max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:10px;
-  padding-block:12px 18px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));
-  padding-right:max(16px,env(safe-area-inset-right,0px));
+body{
+  background-color:var(--bg); color:var(--ink); font-family:var(--f-ui); font-size:15px; overflow-x:hidden;
+  background-image:
+    radial-gradient(120% 55% at 50% -12%, rgba(170,40,28,.55), transparent 62%),
+    radial-gradient(90% 45% at 50% 112%, rgba(216,166,66,.16), transparent 60%),
+    radial-gradient(60% 40% at 50% 50%, rgba(60,20,90,calc(var(--night)*.35)), transparent 70%);
+  background-attachment:fixed;
+  transition:background-color .8s;
 }
-.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;justify-content:space-between}
-.logo{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);font-size:1.6rem;margin:0;letter-spacing:.02em;
-  text-shadow:0 1px 0 #000,0 0 18px rgba(216,166,66,.25)}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px;font-size:.82rem;color:var(--muted);white-space:nowrap}
-.chip b{color:var(--gold-hi);font-weight:600}
-.tools{display:flex;gap:6px}
-.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold-hi);border-radius:8px;padding:6px 12px;font-size:.86rem}
-.ghost:hover{background:rgba(216,166,66,.1)}
-.ghost:disabled,.main:disabled{opacity:.4;cursor:default}
+body.night{--night:1; background-color:#07050b}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+#dust{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 
-.strip{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:.84rem;color:var(--muted)}
-.strip .who{font-family:var(--f-display);color:var(--ink);font-size:.95rem}
-.pips{display:inline-flex;gap:3px;vertical-align:middle;margin-left:4px}
-.pip{width:9px;height:9px;border-radius:50%;border:1px solid var(--karma)}
-.pip.on{background:var(--karma);box-shadow:0 0 6px var(--karma)}
-.boon{width:11px;height:11px;transform:rotate(45deg);border:1px solid var(--gold);border-radius:2px}
-.boon.on{background:var(--gold)}
+.app{position:relative;z-index:1;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px;
+  padding-block:10px 14px;
+  padding-left:max(12px,env(safe-area-inset-left,0px));
+  padding-right:max(12px,env(safe-area-inset-right,0px))}
 
-.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:8px 6px;
-  border:24px solid var(--gold);border-image:url(art/ui/playmat.webp) 96 / 24px stretch;
-  background-color:var(--mat);
-  background-image:radial-gradient(ellipse at 50% 50%,rgba(216,166,66,.10),transparent 70%),
-    radial-gradient(rgba(216,166,66,.07) 1px,transparent 1.6px);
-  background-size:100% 100%,12px 12px;
-  box-shadow:0 10px 30px rgba(0,0,0,.55)}
-.lane{display:flex;flex-direction:column;gap:6px;min-width:0}
-.lane{padding-inline:3px}
-.lane + .lane{border-left:1px solid rgba(216,166,66,.45)}
-.slots{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;aspect-ratio:4/5;border-radius:10px;padding:3px;transition:background .15s}
-.slots.p.target{background:rgba(216,166,66,.08);cursor:pointer}
-.slot{background:url(art/ui/slot.webp) center/100% 100% no-repeat;border-radius:5px;opacity:.6;transition:opacity .15s,box-shadow .15s}
-.slots.a .slot{opacity:.38}
-.slots.p.target .slot{opacity:1;box-shadow:0 0 0 1px var(--gold-hi),0 0 12px rgba(243,214,140,.55);animation:glow 1.4s ease-in-out infinite}
-@keyframes glow{50%{box-shadow:0 0 0 1px var(--gold-hi),0 0 4px rgba(243,214,140,.25)}}
+/* ---------- glass HUD ---------- */
+.glass{background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);
+  border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,236,190,.08),0 10px 30px rgba(0,0,0,.45)}
+.hud{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;border-radius:18px;padding:7px 10px}
+.who{display:flex;align-items:center;gap:9px;min-width:0}
+.avatar{flex:0 0 auto;width:42px;height:42px;border-radius:50%;background-size:cover;background-position:center 18%;
+  box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--gold),0 4px 14px rgba(0,0,0,.6)}
+.avatar.enemy{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--enemy),0 0 16px rgba(226,85,63,.45)}
+.who-t{min-width:0}
+.who-n{font-family:var(--f-display);font-size:.9rem;line-height:1.2;color:var(--gold-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who-s{font-size:.72rem;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.karma{display:inline-flex;gap:2px}
+.karma i{width:7px;height:10px;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;background:rgba(185,140,255,.18);border:1px solid rgba(185,140,255,.5)}
+.karma i.on{background:linear-gradient(#e6d4ff,var(--karma));box-shadow:0 0 6px var(--karma);border-color:#e6d4ff}
+.turn{text-align:center;line-height:1}
+.turn-l{font-size:.66rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.turn-n{font-family:var(--f-display);font-size:1.5rem;color:var(--gold-hi);text-shadow:0 0 18px rgba(246,220,150,.45);margin:2px 0 3px}
+.turn-n small{font-size:.75rem;color:var(--muted)}
+.turn-dots{display:flex;gap:4px;justify-content:center}
+.turn-dots i{width:8px;height:3px;border-radius:2px;background:rgba(216,166,66,.25)}
+.turn-dots i.on{background:var(--gold-hi);box-shadow:0 0 6px var(--gold)}
+.turn-dots i.cur{background:#fff;box-shadow:0 0 8px #fff}
+.hud-r{display:flex;justify-content:flex-end;align-items:center;gap:6px}
+.stake{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted);white-space:nowrap}
+.coin{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.78rem;color:#2a1206;
+  background:radial-gradient(circle at 35% 30%,#fff3c8,var(--gold) 55%,var(--gold-lo));box-shadow:0 0 0 1px #fff2c2 inset,0 2px 8px rgba(0,0,0,.5)}
+.icon-btn{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:var(--gold-hi);
+  background:rgba(255,230,170,.06);border:1px solid var(--line);transition:background .15s}
+.icon-btn:hover{background:rgba(255,230,170,.14)}
+.icon-btn svg{width:17px;height:17px}
 
-.mc{position:relative;border-radius:6px;border:2px solid var(--elc);padding:0;min-width:0;
-  background-color:var(--panel);background-size:cover;background-position:center 20%;
-  display:grid;place-items:center;overflow:hidden}
-.mc .pw,.hc .pw{position:absolute;right:2px;bottom:2px;min-width:1.45em;height:1.45em;padding:0 3px;border-radius:999px;
-  background:var(--bg);border:1px solid var(--gold);color:var(--gold-hi);font-weight:700;font-size:.8rem;
-  display:grid;place-items:center;font-variant-numeric:tabular-nums}
-.pw.hi{color:var(--up);border-color:var(--up)}
-.pw.lo{color:var(--down);border-color:var(--down)}
-.mc.dk{box-shadow:inset 0 0 10px var(--karma)}
-.mc.pend{opacity:.62;border-style:dashed}
-.mc.back{background:var(--lac) url(art/ui/cardback.webp) center/cover;border-color:var(--gold)}
-.mc.flip{animation:flip .38s ease-out}
-.fx-up .pw{animation:pop .5s ease-out}
-.fx-down{animation:shake .4s}
-@keyframes flip{from{transform:rotateY(90deg);filter:brightness(2)}to{transform:none}}
-@keyframes pop{40%{transform:scale(1.5);box-shadow:0 0 10px var(--up)}}
-@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+/* ---------- board ---------- */
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lane{position:relative;display:flex;flex-direction:column;gap:12px;min-width:0;padding:8px 6px;border-radius:16px;isolation:isolate;
+  border:1px solid rgba(216,166,66,.16);overflow:hidden}
+.lane-bg{position:absolute;inset:0;z-index:-1;background-size:cover;background-position:center;filter:blur(3px) saturate(1.25) brightness(.32);transform:scale(1.12)}
+.lane::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(10,6,5,.55),transparent 30%,transparent 70%,rgba(10,6,5,.6))}
+.lane.lead-p::before,.lane.lead-a::before{content:"";position:absolute;left:0;right:0;height:45%;z-index:-1;pointer-events:none}
+.lane.lead-p::before{bottom:0;background:radial-gradient(80% 70% at 50% 100%,rgba(246,220,150,.30),transparent 70%)}
+.lane.lead-a::before{top:0;background:radial-gradient(80% 70% at 50% 0%,rgba(226,85,63,.32),transparent 70%)}
 
-.loc{border:1px solid var(--gold);border-radius:10px;background-color:var(--panel-2);padding:6px 6px;text-align:center;
-  display:flex;flex-direction:column;gap:3px;position:relative;background-size:cover;background-position:center;
-  text-shadow:0 1px 3px #000,0 0 8px #000}
-.loc .ltext{color:var(--ink)}
-.loc .lel{align-self:center;background:rgba(23,12,10,.75);border:1px solid var(--elc);border-radius:999px;padding:0 8px;text-shadow:none}
-.lname{font-family:var(--f-display);color:var(--gold-hi);font-size:clamp(.78rem,2.9vw,1rem);line-height:1.25;text-wrap:balance}
-.lel{font-size:.7rem;color:var(--elc);font-weight:600;letter-spacing:.04em}
-.ltext{font-size:.7rem;color:var(--muted);line-height:1.3;min-height:2.6em}
-.tot{font-weight:700;font-size:1.05rem;font-variant-numeric:tabular-nums;color:var(--muted)}
-.tot.lead{color:var(--gold-hi);text-shadow:0 0 10px rgba(243,214,140,.5)}
-.tot.lead::after{content:" ◆";font-size:.6rem;vertical-align:middle}
-
-.info{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:3.6em;font-size:.88rem;line-height:1.45;display:flow-root}
-.ithumb{float:left;width:52px;aspect-ratio:3/4;object-fit:cover;border-radius:6px;border:1px solid var(--gold);margin-right:10px}
-.info b{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);font-size:1rem;margin-right:6px}
-.info .meta{color:var(--muted);font-size:.8rem}
-.info p{margin:2px 0 0}
-.tag{display:inline-block;font-size:.72rem;padding:0 7px;border-radius:999px;border:1px solid var(--elc);color:var(--elc);margin-left:4px}
-.tag.dark{border-color:var(--karma);color:var(--karma)}
-.hint{color:var(--muted)}
-
-.hand{display:flex;gap:8px;overflow-x:auto;padding:8px 2px 6px;min-height:142px;scrollbar-width:thin}
-.hc{position:relative;flex:0 0 auto;width:88px;aspect-ratio:5/7;border-radius:9px;border:1px solid var(--gold);padding:0;overflow:hidden;
-  background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--elc) 35%,var(--panel)));
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .15s,box-shadow .15s}
-.hc .art{position:absolute;left:0;right:0;top:0;height:68%;background-size:cover;background-position:center 15%;
-  border-bottom:2px solid var(--elc)}
-.hc .nm{position:absolute;left:3px;right:3px;bottom:20px;font-size:.7rem;line-height:1.15;text-align:center;font-weight:600}
-.gimg{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;margin-bottom:6px;display:block}
-.gcard.withthumb{display:grid;grid-template-columns:56px minmax(0,1fr);gap:4px 10px;align-items:start}
-.gcard.withthumb img{width:56px;aspect-ratio:3/4;object-fit:cover;border-radius:5px;grid-row:span 3}
-.hc .cost{position:absolute;left:3px;top:3px;width:1.6em;height:1.6em;transform:rotate(45deg);background:var(--gold);border-radius:3px;
-  display:grid;place-items:center}
-.hc .cost span{transform:rotate(-45deg);color:var(--bg);font-weight:700;font-size:.82rem}
-.hc.dk{box-shadow:inset 0 0 14px var(--karma)}
-.hc.sel{transform:translateY(-8px);box-shadow:0 0 0 2px var(--gold-hi),0 6px 18px rgba(243,214,140,.35)}
-.hc.no{filter:grayscale(.75) brightness(.7)}
 .el-earth{--elc:var(--earth)} .el-water{--elc:var(--water)} .el-wind{--elc:var(--wind)} .el-fire{--elc:var(--fire)} .el-none{--elc:var(--none)}
+.slots{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;aspect-ratio:4/5.2;border-radius:10px;transition:background .2s;
+  width:100%;max-width:168px;margin-inline:auto}
+.slot{border-radius:7px;background:url(art/ui/slot.webp) center/100% 100% no-repeat;opacity:.42}
+.slots.a .slot{opacity:.22;filter:hue-rotate(-18deg) saturate(1.4)}
+.slots.p.target{cursor:pointer;background:rgba(246,220,150,.07)}
+.slots.p.target .slot{opacity:1;animation:slotglow 1.3s ease-in-out infinite}
+@keyframes slotglow{0%,100%{box-shadow:0 0 0 1.5px var(--gold-hi),0 0 16px rgba(246,220,150,.6)}50%{box-shadow:0 0 0 1px var(--gold),0 0 4px rgba(246,220,150,.2)}}
 
-.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-.main{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:var(--bg);border:0;border-radius:10px;padding:10px 26px;
-  font-family:var(--f-display);font-size:1.05rem;box-shadow:0 3px 0 #7d5a1a}
-.main:active{transform:translateY(2px);box-shadow:0 1px 0 #7d5a1a}
+/* ---------- card face (scales with its own width via container units) ---------- */
+.cf{position:relative;width:100%;aspect-ratio:3/4;border-radius:9%/6.75%;overflow:hidden;container-type:inline-size;
+  background:#120a07;box-shadow:0 6px 16px rgba(0,0,0,.55)}
+.cf-art{position:absolute;inset:0;background-size:cover;background-position:center 18%}
+.cf-art::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 22%,transparent 55%,rgba(8,4,2,.92) 100%)}
+.cf::before{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 9cqw color-mix(in srgb,var(--elc) 65%,transparent)}
+.cf::after{content:"";position:absolute;inset:0;z-index:4;border-radius:inherit;pointer-events:none;padding:3.2cqw;
+  background:linear-gradient(145deg,#fff6d0 0%,#e4b65a 18%,#7d5313 38%,#f7dc95 55%,#a9781f 75%,#ffe9a8 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.cf.dk::before{box-shadow:inset 0 0 12cqw rgba(160,100,255,.75)}
+.cf-foil,.cf-sheen{position:absolute;inset:0;z-index:3;pointer-events:none}
+.cf.rare .cf-foil{background:linear-gradient(115deg,transparent 25%,rgba(255,80,200,.28) 40%,rgba(80,255,230,.28) 50%,rgba(255,236,90,.28) 60%,transparent 75%);
+  background-size:300% 300%;mix-blend-mode:color-dodge;opacity:.55;animation:foil 7s linear infinite}
+@keyframes foil{from{background-position:0% 0%}to{background-position:300% 300%}}
+.cf-sheen{background:linear-gradient(110deg,transparent 35%,rgba(255,250,230,.55) 50%,transparent 65%);background-size:260% 100%;background-position:150% 0;opacity:0}
+.cf-cost{position:absolute;z-index:5;left:3.5cqw;top:3.5cqw;width:25cqw;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 28%,#e8fcff 0,#7fd6ff 18%,#2a86c9 52%,#0a2a55 100%);
+  box-shadow:0 0 0 1.4cqw #f1d08a,0 0 0 2.2cqw #6b4510,0 1.5cqw 4cqw rgba(0,0,0,.7)}
+.cf-cost span{font-weight:800;font-size:15cqw;line-height:1;color:#fff;text-shadow:0 .8cqw 1.5cqw rgba(0,0,0,.8)}
+.cf-pow{position:absolute;z-index:5;right:3cqw;top:3cqw;width:27cqw;aspect-ratio:1/1.1;display:grid;place-items:center;
+  clip-path:polygon(50% 0,100% 24%,100% 76%,50% 100%,0 76%,0 24%);
+  background:linear-gradient(160deg,#fff3c2,#e0aa45 45%,#7a4d10)}
+.cf-pow::before{content:"";position:absolute;inset:1.6cqw;clip-path:inherit;background:linear-gradient(170deg,#4a1a0c,#1c0905)}
+.cf-pow span{position:relative;font-weight:800;font-size:15.5cqw;line-height:1;color:#ffe7a6;text-shadow:0 0 3cqw rgba(255,200,90,.6)}
+.cf-pow.hi span{color:var(--up);text-shadow:0 0 4cqw rgba(140,240,120,.8)}
+.cf-pow.lo span{color:var(--down);text-shadow:0 0 4cqw rgba(255,120,100,.8)}
+.cf-karma{position:absolute;z-index:5;left:6cqw;top:31cqw;font-weight:700;font-size:8.5cqw;line-height:1;padding:1.2cqw 2.6cqw;border-radius:9cqw;
+  color:#f1e6ff;background:rgba(70,30,120,.85);box-shadow:0 0 0 .8cqw #b98cff,0 0 4cqw rgba(185,140,255,.7)}
+.cf-name{position:absolute;z-index:5;left:6cqw;right:6cqw;bottom:6.5cqw;text-align:center;font-family:var(--f-display);font-size:10.5cqw;line-height:1.15;
+  background:linear-gradient(180deg,#fffbe8,#f0cf7f 60%,#c99232);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 .6cqw .8cqw #000)}
+.cf-el{position:absolute;z-index:5;left:50%;bottom:-.5cqw;transform:translateX(-50%);width:18cqw;height:3cqw;border-radius:3cqw 3cqw 0 0;background:var(--elc);box-shadow:0 0 5cqw var(--elc)}
+.cf.back{background:url(art/ui/cardback.webp) center/cover}
+.cf.back::before{box-shadow:none}
 
-.modal{position:fixed;inset:0;background:var(--shade);display:grid;place-items:center;z-index:30;
-  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.sheet{background:var(--panel);border:1px solid var(--gold);border-radius:14px;max-width:720px;width:100%;max-height:100%;overflow:auto;padding:18px 18px 22px}
-.sheet h2{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);margin:0 0 8px;font-size:1.4rem;text-wrap:balance}
-.sheet h3{font-family:var(--f-display);font-weight:400;color:var(--gold);margin:18px 0 6px;font-size:1.05rem}
-.sheet p,.sheet li{line-height:1.6;color:var(--ink);max-width:65ch}
-.sheet ol,.sheet ul{padding-left:1.2em;margin:4px 0}
-.sheet .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
-.gcard{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel-2);font-size:.82rem;line-height:1.45}
-.gcard .gt{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
-.gcard .gn{font-family:var(--f-display);color:var(--gold-hi);font-size:.95rem}
-.gcard .gs{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
-.res div{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;font-size:.85rem}
-.res .rw{color:var(--gold-hi);font-weight:700}
-.big{font-size:1.1rem}
-.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:40;
-  background:var(--panel-2);border:1px solid var(--gold);color:var(--gold-hi);padding:8px 16px;border-radius:999px;
-  font-size:.9rem;box-shadow:0 6px 20px rgba(0,0,0,.5);max-width:calc(100% - 32px);text-align:center}
+/* board-sized cards: bigger power badge, no cost/name */
+.mc{position:relative;display:block;width:100%;height:100%;min-width:0}
+.mc .cf{height:100%;aspect-ratio:auto}
+.mc .cf-pow{width:44cqw;right:2cqw;top:auto;bottom:2cqw}
+.mc .cf-pow span{font-size:25cqw}
+.mc.pend{opacity:.72}
+.mc.pend .cf{outline:2px dashed var(--gold-hi);outline-offset:-2px}
+.mc.flip .cf{animation:slam .55s cubic-bezier(.2,.9,.25,1.2)}
+.mc.flip::after{content:"";position:absolute;inset:-25%;border-radius:50%;pointer-events:none;border:2px solid var(--gold-hi);
+  box-shadow:0 0 18px var(--gold);animation:burst .6s ease-out forwards}
+.mc.flip .cf-sheen{animation:sweep .8s ease-out .2s}
+.mc.fx-down .cf{animation:shake .4s}
+@keyframes slam{0%{transform:translateY(-40%) scale(1.6) rotate(-8deg);opacity:0;filter:brightness(2.4)}60%{transform:scale(.94);opacity:1}100%{transform:none;filter:none}}
+@keyframes burst{from{transform:scale(.4);opacity:1}to{transform:scale(1.35);opacity:0}}
+@keyframes sweep{0%{opacity:1;background-position:150% 0}100%{opacity:1;background-position:-60% 0}}
+@keyframes shake{20%{transform:translateX(-4px) rotate(-2deg)}60%{transform:translateX(4px) rotate(2deg)}}
+.floater{position:absolute;left:50%;top:10%;z-index:9;transform:translateX(-50%);pointer-events:none;font-weight:800;font-size:1.25rem;
+  text-shadow:0 0 10px currentColor,0 2px 3px #000;animation:float 1s ease-out forwards}
+.floater.up{color:var(--up)} .floater.down{color:var(--down)}
+@keyframes float{from{opacity:0;transform:translate(-50%,10px) scale(.6)}25%{opacity:1;transform:translate(-50%,-4px) scale(1.2)}to{opacity:0;transform:translate(-50%,-34px) scale(1)}}
+
+/* ---------- realm (location) tile ---------- */
+.loc{position:relative;border-radius:14px;min-height:118px;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:22px 7px 20px;text-align:center;overflow:visible;
+  box-shadow:0 0 0 1.5px var(--gold),0 0 0 3px rgba(10,6,5,.9),0 0 22px color-mix(in srgb,var(--elc) 35%,transparent),0 10px 24px rgba(0,0,0,.6)}
+.loc-art{position:absolute;inset:0;border-radius:inherit;background-size:cover;background-position:center;overflow:hidden}
+.loc-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,4,3,.35),rgba(8,4,3,.1) 35%,rgba(8,4,3,.88) 100%)}
+.loc-body{position:relative;display:flex;flex-direction:column;gap:3px;align-items:center}
+.loc-name{font-family:var(--f-display);font-size:clamp(.8rem,3vw,1.02rem);line-height:1.2;text-wrap:balance;
+  background:linear-gradient(180deg,#fffbe8,#f0cf7f 60%,#c99232);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 1px 2px #000)}
+.loc-el{font-size:.62rem;font-weight:600;letter-spacing:.06em;color:#120a07;background:var(--elc);border-radius:999px;padding:0 8px;line-height:1.55;
+  box-shadow:0 0 10px color-mix(in srgb,var(--elc) 70%,transparent)}
+.loc-rule{font-size:.68rem;line-height:1.3;color:var(--ink);text-shadow:0 1px 2px #000;min-height:2.6em}
+.medal{position:absolute;left:50%;transform:translateX(-50%);z-index:3;min-width:38px;height:30px;padding:0 8px;border-radius:999px;
+  display:grid;place-items:center;font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums;color:var(--muted);
+  background:linear-gradient(180deg,#3a2216,#160b07);box-shadow:0 0 0 1.5px #6b4a2a,0 4px 10px rgba(0,0,0,.6);transition:all .25s}
+.medal.a{top:-15px} .medal.p{bottom:-15px}
+.medal.win{color:#2a1206;background:linear-gradient(180deg,#fff3c2,#e0aa45 55%,#9b6a1a);box-shadow:0 0 0 1.5px #fff0bf,0 0 18px rgba(246,220,150,.7)}
+.medal.a.win{color:#fff;background:linear-gradient(180deg,#ff9a7d,#c8321e 55%,#6e120a);box-shadow:0 0 0 1.5px #ffc2b0,0 0 18px rgba(226,85,63,.75)}
+
+/* ---------- tip + hand + dock ---------- */
+.tip{min-height:48px;border-radius:14px;padding:7px 12px;display:flex;align-items:center;gap:10px;font-size:.85rem;line-height:1.35}
+.tip-n{font-family:var(--f-display);color:var(--gold-hi);font-size:.95rem;margin-right:4px}
+.tip-meta{font-size:.72rem;color:var(--muted)}
+.tip .chip{display:inline-block;font-size:.66rem;font-weight:600;padding:0 7px;border-radius:999px;color:#120a07;background:var(--elc);margin-left:4px;vertical-align:1px}
+.tip .chip.dark{background:var(--karma)}
+.tip-hint{color:var(--muted)}
+
+.hand{position:relative;display:flex;justify-content:center;align-items:flex-end;height:clamp(150px,36vw,196px);padding-top:26px}
+.hc{--r:0deg;--y:0px;position:relative;flex:0 0 auto;width:clamp(86px,23vw,118px);transform:translateY(var(--y)) rotate(var(--r));
+  transform-origin:50% 140%;transition:transform .22s cubic-bezier(.2,.8,.3,1.2),filter .2s}
+.hc:hover{transform:translateY(calc(var(--y) - 12px)) rotate(var(--r));z-index:20}
+.hc:hover .cf-sheen{animation:sweep .9s ease-out}
+.hc.sel{transform:translateY(-30px) rotate(0) scale(1.1);z-index:30}
+.hc.sel .cf{box-shadow:0 0 0 2px var(--gold-hi),0 0 28px rgba(246,220,150,.7),0 14px 30px rgba(0,0,0,.6)}
+.hc.no .cf{filter:saturate(.3) brightness(.55)}
+.hand-empty{align-self:center;color:var(--muted);font-size:.85rem}
+
+.dock{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:20px;padding:8px 10px}
+.dock-l,.dock-r{display:flex;align-items:center;gap:10px}
+.act{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.62rem;color:var(--muted);letter-spacing:.02em}
+.act .icon-btn{width:40px;height:40px;border-radius:50%}
+.vow{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.86rem;color:#2a1206;
+  background:radial-gradient(circle at 35% 30%,#fff3c8,var(--gold) 55%,var(--gold-lo));box-shadow:0 0 0 1px #fff2c2 inset,0 0 14px rgba(216,166,66,.45)}
+.vow:disabled,.act .icon-btn:disabled{filter:grayscale(1) brightness(.55);cursor:default;box-shadow:none}
+.orb{position:relative;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 34% 28%,#eafcff 0,#8fdcff 16%,#2f8fd6 48%,#0b2a58 100%);
+  box-shadow:0 0 0 2px #0a0605,0 0 0 4px #e9c46e,0 0 24px rgba(92,200,255,.55)}
+.orb b{font-weight:800;font-size:1.6rem;line-height:1;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.6)}
+.orb small{position:absolute;bottom:-18px;font-size:.62rem;color:var(--muted);white-space:nowrap}
+.orb.empty{filter:saturate(.25) brightness(.7);box-shadow:0 0 0 2px #0a0605,0 0 0 4px #8a6a2e}
+.endbtn{position:relative;height:60px;min-width:118px;padding:0 18px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#2a1206;background:linear-gradient(180deg,#fff0bd,#e7b552 45%,#a8701c);
+  box-shadow:inset 0 1px 0 #fff8dc,inset 0 -4px 0 rgba(80,40,0,.35),0 8px 22px rgba(216,166,66,.35);overflow:hidden}
+.endbtn b{font-family:var(--f-display);font-weight:400;font-size:1.08rem;line-height:1.2}
+.endbtn small{font-size:.68rem;font-weight:600;opacity:.75}
+.endbtn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);
+  background-size:260% 100%;background-position:150% 0}
+.endbtn.ready{animation:readyglow 1.6s ease-in-out infinite}
+.endbtn.ready::after{animation:sweep 2.2s ease-in-out infinite}
+@keyframes readyglow{50%{box-shadow:inset 0 1px 0 #fff8dc,inset 0 -4px 0 rgba(80,40,0,.35),0 0 34px rgba(246,220,150,.85)}}
+.endbtn:active{transform:translateY(2px)}
+.endbtn:disabled{filter:grayscale(.8) brightness(.6);cursor:default;animation:none}
+
+/* ---------- overlays ---------- */
+.modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(5,3,2,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  animation:fadein .2s ease-out}
+@keyframes fadein{from{opacity:0}}
+.sheet{width:100%;max-width:760px;max-height:100%;overflow:auto;border-radius:20px;padding:20px 18px 24px;background:var(--glass-hi)}
+.sheet h2{font-family:var(--f-display);font-weight:400;font-size:1.5rem;margin:0;text-wrap:balance;
+  background:linear-gradient(180deg,#fffbe8,#f0cf7f 60%,#c99232);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sheet h3{font-family:var(--f-display);font-weight:400;color:var(--gold);margin:20px 0 8px;font-size:1.05rem}
+.sheet p,.sheet li{line-height:1.65;max-width:65ch}
+.sheet ol{padding-left:1.2em;margin:8px 0}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.citem{display:flex;flex-direction:column;gap:6px;font-size:.78rem;line-height:1.45;color:var(--muted)}
+.citem .cf{width:100%}
+.lgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.litem{border-radius:12px;overflow:hidden;background:rgba(0,0,0,.3);border:1px solid var(--line);font-size:.8rem}
+.litem div{padding:8px 10px}
+.litem b{font-family:var(--f-display);font-weight:400;color:var(--gold-hi)}
+.litem img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+
+.inspect{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:340px;width:100%}
+.inspect .cf{width:min(240px,62vw);animation:pop .3s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.inspect-t{border-radius:16px;padding:12px 14px;width:100%;font-size:.88rem;line-height:1.55}
+.inspect-t .tip-n{font-size:1.1rem}
+
+.end{position:relative;text-align:center;max-width:460px;overflow:hidden}
+.end::before{content:"";position:absolute;inset:-60%;z-index:-1;background:repeating-conic-gradient(from 0deg,rgba(246,220,150,.10) 0 10deg,transparent 10deg 20deg);
+  animation:spin 30s linear infinite}
+.end.lose::before{background:repeating-conic-gradient(from 0deg,rgba(226,85,63,.08) 0 10deg,transparent 10deg 20deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.end h2{font-size:2.3rem;margin:4px 0 10px}
+.res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.res-i{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.35);font-size:.8rem}
+.res-i img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.res-i div{padding:6px 4px}
+.res-i .w{color:var(--gold-hi);font-weight:700}
+.res-i .wa{color:var(--enemy);font-weight:700}
+.end-txt{font-size:.95rem;color:var(--ink);margin:6px 0 16px}
+.end-btn{margin:0 auto}
+
+.toast{position:fixed;left:0;right:0;top:calc(34% + env(safe-area-inset-top,0px));z-index:50;pointer-events:none;display:flex;justify-content:center}
+.toast span{padding:10px 40px;font-family:var(--f-display);font-size:1rem;color:var(--gold-hi);text-align:center;max-width:92%;
+  background:linear-gradient(90deg,transparent,rgba(14,8,6,.94) 18%,rgba(14,8,6,.94) 82%,transparent);
+  border-block:1px solid;border-image:linear-gradient(90deg,transparent,var(--gold),transparent) 1;
+  text-shadow:0 0 14px rgba(246,220,150,.5);animation:banner 2.4s ease-out forwards}
+@keyframes banner{0%{opacity:0;transform:scaleX(.6)}10%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
 
 @media (max-width:440px){
   body{font-size:14px}
-  .hc{width:78px}
-  .board{border-width:16px;border-image-width:16px;padding:6px 4px;gap:3px}
-  .ltext{font-size:.64rem}
-  .logo{font-size:1.35rem}
+  .hud{padding:6px 8px}
+  .avatar{width:34px;height:34px}
+  .who-n{font-size:.8rem}
+  .stake span{display:none}
+  .board{gap:5px}
+  .lane{padding:7px 4px;gap:12px}
+  .loc{min-height:108px;padding:20px 5px 18px}
+  .loc-rule{font-size:.62rem}
+  .dock{padding:8px;gap:6px}
+  .dock-r{gap:7px}
+  .dock .who{gap:6px}
+  .dock .who-s span{display:none}
+  .act .icon-btn,.vow{width:36px;height:36px}
+  .orb{width:52px;height:52px}
+  .orb b{font-size:1.35rem}
+  .endbtn{min-width:0;height:54px;padding:0 12px}
+  .endbtn b{font-size:.95rem}
 }
 @media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
+  *,*::before,*::after{animation:none!important;transition:none!important}
 }
 </style>
 
+<canvas id="dust" aria-hidden="true"></canvas>
+
 <div class="app">
-  <header class="top">
-    <h1 class="logo">ศึกสามภพ</h1>
-    <div class="chips">
-      <span class="chip" id="turnChip"></span>
-      <span class="chip" id="stakeChip"></span>
-      <span class="chip" id="baramiChip"></span>
+  <header class="hud glass">
+    <div class="who">
+      <div class="avatar enemy" style="background-image:url(art/cards/tosakan.webp)"></div>
+      <div class="who-t"><div class="who-n">ทศกัณฐ์</div><div class="who-s" id="aiStat"></div></div>
     </div>
-    <div class="tools">
-      <button class="ghost" id="btnRules" type="button">วิธีเล่น · การ์ด</button>
-      <button class="ghost" id="btnNew" type="button">เกมใหม่</button>
+    <div class="turn" id="turnBox"></div>
+    <div class="hud-r">
+      <div class="stake"><span>เดิมพัน</span><div class="coin" id="stakeCoin">×1</div></div>
+      <button class="icon-btn" id="btnRules" type="button" aria-label="วิธีเล่นและการ์ดทั้งหมด" title="วิธีเล่น · การ์ด">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>
+      </button>
+      <button class="icon-btn" id="btnNew" type="button" aria-label="เริ่มเกมใหม่" title="เกมใหม่">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      </button>
     </div>
   </header>
-  <div class="strip" id="aiStrip"></div>
+
   <main class="board" id="board"></main>
-  <div class="strip" id="pStrip"></div>
-  <div class="info" id="info"></div>
+
+  <div class="tip glass" id="tip"></div>
   <div class="hand" id="hand"></div>
-  <div class="actions">
-    <button class="ghost" id="btnRetreat" type="button">ถอย</button>
-    <button class="ghost" id="btnVow" type="button">ลั่นวาจา ×2</button>
-    <button class="main" id="btnEnd" type="button">จบเทิร์น</button>
-  </div>
+
+  <footer class="dock glass">
+    <div class="dock-l">
+      <div class="who">
+        <div class="avatar" style="background-image:url(art/cards/hanuman.webp)"></div>
+        <div class="who-t"><div class="who-n">คุณ</div><div class="who-s" id="pStat"></div></div>
+      </div>
+    </div>
+    <div class="dock-r">
+      <div class="act"><button class="icon-btn" id="btnRetreat" type="button" aria-label="ถอย">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
+      </button><span id="retreatLbl">ถอย</span></div>
+      <div class="act"><button class="vow" id="btnVow" type="button" aria-label="ลั่นวาจา เพิ่มเดิมพันสองเท่า">×2</button><span>ลั่นวาจา</span></div>
+      <div class="orb" id="orb"><b>0</b><small>บุญ</small></div>
+      <button class="endbtn" id="btnEnd" type="button"><b>จบเทิร์น</b><small id="endSub"></small></button>
+    </div>
+  </footer>
 </div>
 
+<div class="modal" id="inspect" hidden></div>
+
 <div class="modal" id="rules" hidden>
-  <div class="sheet">
-    <div class="row"><h2>วิธีเล่นศึกสามภพ</h2><button class="ghost" data-close="rules" type="button">ปิด</button></div>
+  <div class="sheet glass">
+    <div class="sheet-h"><h2>วิธีเล่นศึกสามภพ</h2><button class="icon-btn" data-close="rules" type="button" aria-label="ปิด">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <ol>
       <li>สนามมี <b>3 ภพ</b> สุ่มมาจาก 9 แห่ง แต่ละภพมีธาตุและกฎของตัวเอง</li>
       <li>การ์ด 25 ใบมีอย่างละใบเดียว แจกให้สองฝ่ายฝ่ายละ 12 ใบ ไม่มีการ์ดซ้ำในเด็ค และไม่มีใบไหนอยู่ทั้งสองฝ่าย</li>
@@ -203,31 +349,30 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
       <li>จบเทิร์นที่ 6 ใครมีพลังรวมมากกว่า <b>2 ใน 3 ภพ</b> ชนะ ถ้าเสมอให้ดูพลังรวมทั้งสนาม</li>
     </ol>
     <h3>ธาตุ</h3>
-    <p>การ์ดธาตุเดียวกับภพได้ +1 · การ์ดที่ธาตุของภพข่มอยู่ได้ −1<br>
-      น้ำข่มไฟ · ไฟข่มลม · ลมข่มดิน · ดินข่มน้ำ</p>
+    <p>การ์ดธาตุเดียวกับภพได้ +1 · การ์ดที่ธาตุของภพข่มอยู่ได้ −1<br>น้ำข่มไฟ · ไฟข่มลม · ลมข่มดิน · ดินข่มน้ำ</p>
     <h3>กรรม</h3>
-    <p>การ์ดสายมืด (ขอบม่วง) แรงเกินราคา แต่สะสมกรรม เมื่อกรรมครบ ๕ ตอนจบเทิร์น การ์ดที่แรงที่สุดของเราจะโดน −3 แล้วกรรมลดลง ๕</p>
+    <p>การ์ดสายมืด (เรืองแสงม่วง) แรงเกินราคา แต่สะสมกรรม เมื่อกรรมครบ ๕ ตอนจบเทิร์น การ์ดที่แรงที่สุดของเราจะโดน −3 แล้วกรรมลดลง ๕</p>
     <h3>ยามค่ำ</h3>
     <p>ตั้งแต่เทิร์นที่ ๔ การ์ดสายมืดทุกใบ +1</p>
     <h3>ลั่นวาจาและถอย</h3>
     <p>แต่ละเกมเดิมพันแต้ม <b>บารมี</b> เริ่มที่ 1 แต่ละฝ่ายลั่นวาจาได้ครั้งเดียว เดิมพันจะเพิ่มเป็นสองเท่า ถ้ารู้ว่าแพ้ กดถอยเพื่อเสียแค่ครึ่งเดียว</p>
     <h3>ภพทั้ง 9 แห่ง</h3>
-    <div class="gallery" id="locGallery"></div>
+    <div class="lgal" id="locGallery"></div>
     <h3>การ์ดทั้งหมด</h3>
-    <div class="gallery" id="cardGallery"></div>
+    <div class="cgal" id="cardGallery"></div>
   </div>
 </div>
 
 <div class="modal" id="endModal" hidden>
-  <div class="sheet">
+  <div class="sheet glass end" id="endSheet">
     <h2 id="endTitle"></h2>
     <div class="res" id="endRes"></div>
-    <p class="big" id="endText"></p>
-    <div class="actions"><button class="main" id="btnAgain" type="button">เล่นอีกครั้ง</button></div>
+    <p class="end-txt" id="endText"></p>
+    <button class="endbtn end-btn" id="btnAgain" type="button"><b>เล่นอีกครั้ง</b><small>เกมใหม่</small></button>
   </div>
 </div>
 
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" aria-live="polite"></div>
 
 <script>
 const $ = s => document.querySelector(s);
@@ -252,35 +397,35 @@ const LOCS = [
 ];
 
 const CARDS = [
-  {id:'kinnaree', name:'กินรี', g:'ก', cost:1, power:2, el:'wind', text:'ต่อเนื่อง: ถ้าเป็นการ์ดใบเดียวของเราในภพนี้ +2', self:c=>mineAt(c).length===1?2:0},
-  {id:'novice', name:'เด็กวัด', g:'ด', cost:1, power:2, el:'earth', text:'เมื่อเปิด: กรรมของเรา −1', reveal:c=>addKarma(c.owner,-1)},
-  {id:'krasue', name:'ผีกระสือ', g:'ส', cost:1, power:3, el:'fire', dark:1, text:''},
-  {id:'blackcat', name:'แมวดำ', g:'ม', cost:1, power:2, el:null, dark:1, text:'เมื่อเปิด: การ์ดศัตรูที่แรงที่สุดในภพนี้ −1', reveal:c=>{const t=strongest(foesAt(c)); if(t) buff(t,-1);}},
-  {id:'goldfish', name:'ปลาตะเพียนทอง', g:'ป', cost:1, power:1, el:'water', text:'เมื่อเปิด: เทิร์นหน้าได้บุญ +1', reveal:c=>{S.bonus[c.owner]+=1;}},
-  {id:'dryad', name:'นางไม้', g:'น', cost:2, power:2, el:'earth', text:'ต่อเนื่อง: การ์ดอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o?1:0},
-  {id:'hanuman', name:'หนุมาน', g:'ห', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าศัตรูมีการ์ดในภพนี้มากกว่าเรา +3', reveal:c=>{if(foesAt(c).length>mineAt(c).length) buff(c,3);}},
-  {id:'pob', name:'ผีปอบ', g:'ป', cost:2, power:1, el:'earth', dark:1, text:'เมื่อเปิด: กินการ์ดอื่นของเราที่อ่อนที่สุดในภพนี้ แล้วได้พลังของมัน', reveal:c=>{const v=weakest(mineAt(c).filter(x=>x!==c)); if(v){const p=Math.max(0,v.power+v.buff); destroy(v); buff(c,p);}}},
-  {id:'shaman', name:'หมอผี', g:'ม', cost:2, power:3, el:'fire', text:'เมื่อเปิด: กรรมของเรา −2', reveal:c=>addKarma(c.owner,-2)},
-  {id:'hera', name:'เหรา', g:'ร', cost:2, power:3, el:'water', text:'เมื่อเปิด: ถ้าภพนี้เป็นธาตุน้ำ +2', reveal:c=>{if(locOf(c).el==='water') buff(c,2);}},
-  {id:'naga', name:'นาค', g:'น', cost:3, power:4, el:'water', text:'ต่อเนื่อง: การ์ดธาตุน้ำอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o&&c.el==='water'?1:0},
-  {id:'kumphan', name:'กุมภัณฑ์', g:'ภ', cost:3, power:5, el:'earth', dark:1, text:''},
-  {id:'tglom', name:'ผีตายทั้งกลม', g:'ต', cost:3, power:6, el:'fire', dark:2, text:''},
-  {id:'lion', name:'ราชสีห์', g:'ส', cost:3, power:4, el:'earth', text:'เมื่อเปิด: ถ้าเรานำอยู่ในภพนี้ +2', reveal:c=>{const L=locOf(c); if(sideTotal(L,c.owner,c)>sideTotal(L,OPP[c.owner])) buff(c,2);}},
-  {id:'agni', name:'เทพอัคนี', g:'อ', cost:3, power:3, el:'fire', text:'เมื่อเปิด: การ์ดศัตรูทุกใบในภพนี้ −1', reveal:c=>foesAt(c).forEach(t=>buff(t,-1))},
-  {id:'yak', name:'ยักษ์วัดแจ้ง', g:'ย', cost:4, power:6, el:'earth', text:'ต่อเนื่อง: การ์ดศัตรูราคา 1 ในภพนี้ −1', aura:(o,c)=>c.owner!==o.owner&&c.cost===1?-1:0},
-  {id:'garuda', name:'ครุฑ', g:'ค', cost:4, power:5, el:'wind', text:'เมื่อเปิด: ทำลายการ์ดธาตุน้ำที่แรงที่สุดของศัตรูในภพนี้', reveal:c=>{const t=strongest(foesAt(c).filter(x=>x.el==='water')); if(t) destroy(t);}},
-  {id:'nak', name:'แม่นาก', g:'น', cost:4, power:3, el:'water', dark:2, text:'ต่อเนื่อง: +1 ต่อการ์ดศัตรู 1 ใบในภพนี้', self:c=>foesAt(c).length},
-  {id:'khotchasi', name:'คชสีห์', g:'ช', cost:4, power:5, el:'earth', text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ +1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,1);})},
-  {id:'makara', name:'มกร', g:'ม', cost:5, power:8, el:'water', text:'ไม่มีความสามารถพิเศษ แต่ตัวใหญ่'},
-  {id:'tosakan', name:'ทศกัณฐ์', g:'ท', cost:5, power:10, el:'fire', dark:2, text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ −1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,-1);})},
-  {id:'hermit', name:'ฤๅษี', g:'ษ', cost:5, power:4, el:'wind', text:'เมื่อเปิด: ล้างกรรมของเราเป็น 0 และการ์ดอื่นของเราในภพนี้ +1', reveal:c=>{addKarma(c.owner,-99); mineAt(c).forEach(t=>{if(t!==c) buff(t,1);});}},
-  {id:'suvanna', name:'สุวรรณมัจฉา', g:'ส', cost:5, power:5, el:'water', text:'เมื่อเปิด: การ์ดของเราในภพข้างเคียง +1', reveal:c=>{[c.loc-1,c.loc+1].forEach(j=>{if(S.locs[j]) revealed(S.locs[j].cards[c.owner]).forEach(t=>buff(t,1));});}},
-  {id:'vessuwan', name:'ท้าวเวสสุวรรณ', g:'ว', cost:6, power:10, el:null, text:'ต่อเนื่อง: ศัตรูลงการ์ดสายมืดในภพนี้ไม่ได้', blockDark:true},
-  {id:'nagaraj', name:'พญานาคราช', g:'พ', cost:6, power:9, el:'water', text:'เมื่อเปิด: การ์ดธาตุน้ำอื่นของเราทุกภพ +1', reveal:c=>S.locs.forEach(L=>revealed(L.cards[c.owner]).forEach(t=>{if(t!==c&&t.el==='water') buff(t,1);}))},
+  {id:'kinnaree', name:'กินรี', cost:1, power:2, el:'wind', text:'ต่อเนื่อง: ถ้าเป็นการ์ดใบเดียวของเราในภพนี้ +2', self:c=>mineAt(c).length===1?2:0},
+  {id:'novice', name:'เด็กวัด', cost:1, power:2, el:'earth', text:'เมื่อเปิด: กรรมของเรา −1', reveal:c=>addKarma(c.owner,-1)},
+  {id:'krasue', name:'ผีกระสือ', cost:1, power:3, el:'fire', dark:1, text:''},
+  {id:'blackcat', name:'แมวดำ', cost:1, power:2, el:null, dark:1, text:'เมื่อเปิด: การ์ดศัตรูที่แรงที่สุดในภพนี้ −1', reveal:c=>{const t=strongest(foesAt(c)); if(t) buff(t,-1);}},
+  {id:'goldfish', name:'ปลาตะเพียนทอง', cost:1, power:1, el:'water', text:'เมื่อเปิด: เทิร์นหน้าได้บุญ +1', reveal:c=>{S.bonus[c.owner]+=1;}},
+  {id:'dryad', name:'นางไม้', cost:2, power:2, el:'earth', text:'ต่อเนื่อง: การ์ดอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o?1:0},
+  {id:'hanuman', name:'หนุมาน', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าศัตรูมีการ์ดในภพนี้มากกว่าเรา +3', reveal:c=>{if(foesAt(c).length>mineAt(c).length) buff(c,3);}},
+  {id:'pob', name:'ผีปอบ', cost:2, power:1, el:'earth', dark:1, text:'เมื่อเปิด: กินการ์ดอื่นของเราที่อ่อนที่สุดในภพนี้ แล้วได้พลังของมัน', reveal:c=>{const v=weakest(mineAt(c).filter(x=>x!==c)); if(v){const p=Math.max(0,v.power+v.buff); destroy(v); buff(c,p);}}},
+  {id:'shaman', name:'หมอผี', cost:2, power:3, el:'fire', text:'เมื่อเปิด: กรรมของเรา −2', reveal:c=>addKarma(c.owner,-2)},
+  {id:'hera', name:'เหรา', cost:2, power:3, el:'water', text:'เมื่อเปิด: ถ้าภพนี้เป็นธาตุน้ำ +2', reveal:c=>{if(locOf(c).el==='water') buff(c,2);}},
+  {id:'naga', name:'นาค', cost:3, power:4, el:'water', text:'ต่อเนื่อง: การ์ดธาตุน้ำอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o&&c.el==='water'?1:0},
+  {id:'kumphan', name:'กุมภัณฑ์', cost:3, power:5, el:'earth', dark:1, text:''},
+  {id:'tglom', name:'ผีตายทั้งกลม', cost:3, power:6, el:'fire', dark:2, text:''},
+  {id:'lion', name:'ราชสีห์', cost:3, power:4, el:'earth', text:'เมื่อเปิด: ถ้าเรานำอยู่ในภพนี้ +2', reveal:c=>{const L=locOf(c); if(sideTotal(L,c.owner,c)>sideTotal(L,OPP[c.owner])) buff(c,2);}},
+  {id:'agni', name:'เทพอัคนี', cost:3, power:3, el:'fire', text:'เมื่อเปิด: การ์ดศัตรูทุกใบในภพนี้ −1', reveal:c=>foesAt(c).forEach(t=>buff(t,-1))},
+  {id:'yak', name:'ยักษ์วัดแจ้ง', cost:4, power:6, el:'earth', text:'ต่อเนื่อง: การ์ดศัตรูราคา 1 ในภพนี้ −1', aura:(o,c)=>c.owner!==o.owner&&c.cost===1?-1:0},
+  {id:'garuda', name:'ครุฑ', cost:4, power:5, el:'wind', text:'เมื่อเปิด: ทำลายการ์ดธาตุน้ำที่แรงที่สุดของศัตรูในภพนี้', reveal:c=>{const t=strongest(foesAt(c).filter(x=>x.el==='water')); if(t) destroy(t);}},
+  {id:'nak', name:'แม่นาก', cost:4, power:3, el:'water', dark:2, text:'ต่อเนื่อง: +1 ต่อการ์ดศัตรู 1 ใบในภพนี้', self:c=>foesAt(c).length},
+  {id:'khotchasi', name:'คชสีห์', cost:4, power:5, el:'earth', text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ +1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,1);})},
+  {id:'makara', name:'มกร', cost:5, power:8, el:'water', text:'ไม่มีความสามารถพิเศษ แต่ตัวใหญ่'},
+  {id:'tosakan', name:'ทศกัณฐ์', cost:5, power:10, el:'fire', dark:2, text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ −1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,-1);})},
+  {id:'hermit', name:'ฤๅษี', cost:5, power:4, el:'wind', text:'เมื่อเปิด: ล้างกรรมของเราเป็น 0 และการ์ดอื่นของเราในภพนี้ +1', reveal:c=>{addKarma(c.owner,-99); mineAt(c).forEach(t=>{if(t!==c) buff(t,1);});}},
+  {id:'suvanna', name:'สุวรรณมัจฉา', cost:5, power:5, el:'water', text:'เมื่อเปิด: การ์ดของเราในภพข้างเคียง +1', reveal:c=>{[c.loc-1,c.loc+1].forEach(j=>{if(S.locs[j]) revealed(S.locs[j].cards[c.owner]).forEach(t=>buff(t,1));});}},
+  {id:'vessuwan', name:'ท้าวเวสสุวรรณ', cost:6, power:10, el:null, text:'ต่อเนื่อง: ศัตรูลงการ์ดสายมืดในภพนี้ไม่ได้', blockDark:true},
+  {id:'nagaraj', name:'พญานาคราช', cost:6, power:9, el:'water', text:'เมื่อเปิด: การ์ดธาตุน้ำอื่นของเราทุกภพ +1', reveal:c=>S.locs.forEach(L=>revealed(L.cards[c.owner]).forEach(t=>{if(t!==c&&t.el==='water') buff(t,1);}))},
 ];
 
 /* ---------- rules engine ---------- */
-let S = null, uidN = 0;
+let S = null, uidN = 0, floaters = [];
 const revealed = a => a.filter(x => x.revealed);
 const locOf = c => S.locs[c.loc];
 const mineAt = c => revealed(locOf(c).cards[c.owner]);
@@ -298,7 +443,7 @@ function power(c){
 const strongest = a => a.reduce((b,x) => !b || power(x)>power(b) ? x : b, null);
 const weakest = a => a.reduce((b,x) => !b || power(x)<power(b) ? x : b, null);
 const sideTotal = (L, side, exclude) => revealed(L.cards[side]).filter(x=>x!==exclude).reduce((s,x)=>s+power(x),0);
-function buff(c,n){ c.buff += n; c.fx = n>0 ? 'up' : 'down'; }
+function buff(c,n){ c.buff += n; c.fx = n>0 ? 'up' : 'down'; floaters.push({uid:c.uid, n}); }
 function destroy(c){ const arr=locOf(c).cards[c.owner]; const i=arr.indexOf(c); if(i>=0) arr.splice(i,1); toast(`${c.name}${c.owner==='p'?'ของเรา':'ของศัตรู'} ถูกทำลาย`); }
 function addKarma(side,n){ S.karma[side] = Math.max(0, S.karma[side]+n); }
 function draw(side){ if (S.deck[side].length && S.hand[side].length<8) S.hand[side].push(S.deck[side].shift()); }
@@ -331,14 +476,14 @@ function dealDecks(){
 }
 
 function newGame(){
-  uidN = 0;
+  uidN = 0; floaters = [];
   const locs = shuffle([...LOCS]).slice(0,3).map(L => ({...L, cards:{p:[],a:[]}}));
   const dk = dealDecks();
   S = {turn:0, locs, deck:{p:dk.p.map(d=>inst(d,'p')), a:dk.a.map(d=>inst(d,'a'))},
        hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
-       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null, focus:null};
+       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null};
   for (let i=0;i<3;i++){ draw('p'); draw('a'); }
-  $('#endModal').hidden = true;
+  $('#endModal').hidden = true; $('#inspect').hidden = true;
   startTurn();
 }
 
@@ -387,7 +532,7 @@ function lanesLead(side, margin){
 function aiVowCheck(){
   if (!S.vowed.a && S.turn>=3 && lanesLead('a',4)>=2){
     S.vowed.a = true; S.stakes *= 2;
-    toast(`ศัตรูลั่นวาจา! เดิมพันเป็น ${S.stakes} บารมี`);
+    toast(`ทศกัณฐ์ลั่นวาจา! เดิมพันเป็น ${S.stakes} บารมี`);
   }
 }
 function aiRetreatCheck(){
@@ -404,19 +549,18 @@ async function endTurn(){
   const first = S.turn%2===1 ? 'p' : 'a';
   const order = [...S.pending[first], ...S.pending[OPP[first]]];
   for (const c of order){
-    await wait(480);
+    await wait(520);
     if (!locOf(c).cards[c.owner].includes(c)) continue;
     c.revealed = true; c.fx = 'flip';
     if (c.dark) addKarma(c.owner, c.dark*(locOf(c).karmaX||1));
     if (c.reveal) c.reveal(c);
     if (locOf(c).onHere) locOf(c).onHere(c);
-    S.focus = c;
     render();
   }
   S.pending = {p:[],a:[]};
-  await wait(380);
+  await wait(420);
   karmaCheck(); render();
-  if (S.turn>=6){ await wait(700); finish(); return; }
+  if (S.turn>=6){ await wait(900); finish(); return; }
   aiVowCheck();
   await wait(250);
   startTurn();
@@ -440,40 +584,41 @@ function result(){
   return null;
 }
 
-function getBarami(){ try { return parseInt(localStorage.getItem('samphop-barami')||'0',10)||0; } catch(e){ return S?.baramiMem||0; } }
-function setBarami(v){ try { localStorage.setItem('samphop-barami', String(v)); } catch(e){} S.baramiMem = v; }
+let baramiMem = 0;
+function getBarami(){ try { return parseInt(localStorage.getItem('samphop-barami')||'0',10)||0; } catch(e){ return baramiMem; } }
+function setBarami(v){ baramiMem = v; try { localStorage.setItem('samphop-barami', String(v)); } catch(e){} }
 
 function finish(reason){
   S.phase = 'over'; render();
-  let delta, title, text;
+  let delta, title, text, win;
   if (reason==='p-retreat'){
-    delta = -Math.ceil(S.stakes/2); title = 'ถอยทัพ';
+    delta = -Math.ceil(S.stakes/2); title = 'ถอยทัพ'; win = false;
     text = `เราถอยก่อนจบ เสียบารมี ${-delta} แต้ม (ครึ่งหนึ่งของเดิมพัน ${S.stakes})`;
   } else if (reason==='a-retreat'){
-    delta = Math.ceil(S.stakes/2); title = 'ศัตรูถอยทัพ';
+    delta = Math.ceil(S.stakes/2); title = 'ทศกัณฐ์ถอยทัพ'; win = true;
     text = `ศัตรูเห็นท่าไม่ดีเลยถอยไป เราได้บารมี ${delta} แต้ม`;
   } else {
-    const w = result();
-    if (w==='p'){ delta = S.stakes; title = 'ชนะศึก!'; text = `ยึดได้มากกว่า ได้บารมี ${delta} แต้ม`; }
+    const w = result(); win = w==='p';
+    if (w==='p'){ delta = S.stakes; title = 'ชนะศึก!'; text = `ยึดภพได้มากกว่า ได้บารมี ${delta} แต้ม`; }
     else if (w==='a'){ delta = -S.stakes; title = 'พ่ายแพ้'; text = `ศัตรูยึดภพได้มากกว่า เสียบารมี ${-delta} แต้ม`; }
     else { delta = 0; title = 'เสมอ'; text = 'พลังเท่ากันทุกทาง ไม่มีใครได้เสียบารมี'; }
   }
   const total = getBarami() + delta; setBarami(total);
+  $('#endSheet').classList.toggle('lose', !win);
   $('#endTitle').textContent = title;
   $('#endRes').innerHTML = S.locs.map(L => {
     const p=sideTotal(L,'p'), a=sideTotal(L,'a');
-    return `<div><div class="lname">${L.name}</div><div class="${p>a?'rw':''}">เรา ${p}</div><div class="${a>p?'rw':''}">ศัตรู ${a}</div></div>`;
+    return `<div class="res-i"><img src="${realmArt(L)}" alt=""><div><b>${L.name}</b><br>
+      <span class="${p>a?'w':''}">เรา ${p}</span> · <span class="${a>p?'wa':''}">ศัตรู ${a}</span></div></div>`;
   }).join('');
   $('#endText').textContent = `${text} · บารมีสะสม ${total}`;
   $('#endModal').hidden = false;
-  render();
 }
 
 /* ---------- player actions ---------- */
 function selectHand(uid){
-  if (S.phase!=='play') { S.focus = S.hand.p.find(c=>c.uid===uid); render(); return; }
-  const c = S.hand.p.find(c=>c.uid===uid);
-  S.sel = S.sel===uid ? null : uid; S.focus = c; render();
+  if (S.phase!=='play') return;
+  S.sel = S.sel===uid ? null : uid; render();
 }
 function place(li){
   const c = S.hand.p.find(c=>c.uid===S.sel);
@@ -482,7 +627,7 @@ function place(li){
   if (!canPlace(c,li)){ toast(placeReason(c,li)); return; }
   S.hand.p.splice(S.hand.p.indexOf(c),1);
   c.loc = li; S.locs[li].cards.p.push(c); S.pending.p.push(c);
-  S.energy.p -= c.cost; S.sel = null; S.focus = c;
+  S.energy.p -= c.cost; S.sel = null;
   render();
 }
 function placeReason(c,li){
@@ -498,7 +643,7 @@ function unplace(uid){
     if (c && !c.revealed && S.phase==='play'){
       L.cards.p.splice(L.cards.p.indexOf(c),1);
       S.pending.p.splice(S.pending.p.indexOf(c),1);
-      c.loc=-1; S.hand.p.push(c); S.energy.p += c.cost; S.focus = c; render(); return;
+      c.loc=-1; S.hand.p.push(c); S.energy.p += c.cost; render(); return;
     }
   }
 }
@@ -508,17 +653,32 @@ function findCard(uid){
 }
 
 /* ---------- rendering ---------- */
-const pips = (n,max,cls) => `<span class="pips">${Array.from({length:max},(_,i)=>`<span class="${cls}${i<n?' on':''}"></span>`).join('')}</span>`;
-
 const cardArt = c => `art/cards/${c.id}.webp`;
 const realmArt = L => `art/realms/${L.id}.webp`;
+const karmaPips = n => `<span class="karma" aria-label="กรรม ${n} จาก 5">${Array.from({length:5},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+
+function cardFace(c, o={}){
+  const pw = o.power ?? c.power;
+  const cmp = o.power==null ? '' : pw>c.power ? 'hi' : pw<c.power ? 'lo' : '';
+  return `<div class="cf el-${c.el||'none'} ${c.dark?'dk':''} ${c.cost>=5?'rare':''}">
+    <div class="cf-art" style="background-image:url(${cardArt(c)})"></div>
+    <div class="cf-foil"></div><div class="cf-sheen"></div>
+    ${o.board?'':`<div class="cf-cost"><span>${c.cost}</span></div>`}
+    <div class="cf-pow ${cmp}"><span>${pw}</span></div>
+    ${c.dark&&!o.board?`<div class="cf-karma">กรรม+${c.dark}</div>`:''}
+    ${o.board?'':`<div class="cf-name">${c.name}</div><div class="cf-el"></div>`}
+  </div>`;
+}
+const onBoard = c => c.loc>=0 && S.locs[c.loc] && S.locs[c.loc].cards[c.owner].includes(c);
+const livePower = c => c.revealed && onBoard(c) ? power(c) : null;
+
 function miniCard(c, style){
-  if (!c.revealed && c.owner==='a') return `<button class="mc back" style="${style}" type="button" aria-label="การ์ดคว่ำของศัตรู"></button>`;
-  const pw = c.revealed ? power(c) : c.power;
-  const cmp = !c.revealed ? '' : pw>c.power ? 'hi' : pw<c.power ? 'lo' : '';
+  if (!c.revealed && c.owner==='a')
+    return `<div class="mc" style="${style}" aria-label="การ์ดคว่ำของศัตรู"><div class="cf back"></div></div>`;
   const fx = c.fx==='flip' ? 'flip' : c.fx ? 'fx-'+c.fx : '';
-  return `<button class="mc el-${c.el||'none'} ${c.dark?'dk':''} ${c.revealed?'':'pend'} ${fx}" style="${style};background-image:url(${cardArt(c)})" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw}">
-    <span class="pw ${cmp}">${pw}</span></button>`;
+  const pw = livePower(c);
+  return `<button class="mc ${c.revealed?'':'pend'} ${fx}" style="${style}" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw ?? c.power}">
+    ${cardFace(c,{board:true, power:pw})}</button>`;
 }
 function slotsHTML(L, side){
   const cap = L.cap||4, cells=[];
@@ -534,89 +694,150 @@ function slotsHTML(L, side){
 
 function render(){
   const playing = S.phase==='play';
-  const first = S.turn%2===1 ? 'เราเปิดก่อน' : 'ศัตรูเปิดก่อน';
-  $('#turnChip').innerHTML = `เทิร์น <b>${thNum(S.turn)}/${thNum(6)}</b> · ${first}${S.turn>=4?' · ยามค่ำ':''}`;
-  $('#stakeChip').innerHTML = `เดิมพัน <b>${S.stakes}</b> บารมี`;
-  $('#baramiChip').innerHTML = `บารมีสะสม <b>${getBarami()}</b>`;
-  $('#aiStrip').innerHTML = `<span class="who">ฝั่งศัตรู</span><span>ในมือ ${S.hand.a.length} ใบ</span><span>กรรม ${pips(S.karma.a,5,'pip')}</span>${S.vowed.a?'<span>ลั่นวาจาแล้ว</span>':''}`;
-  $('#pStrip').innerHTML = `<span class="who">ฝั่งเรา</span><span>บุญ ${S.energy.p}/${S.maxE.p} ${pips(S.energy.p,S.maxE.p,'boon')}</span><span>กรรม ${pips(S.karma.p,5,'pip')}</span><span>กองจั่ว ${S.deck.p.length}</span>`;
+  document.body.classList.toggle('night', S.turn>=4);
+
+  $('#turnBox').innerHTML = `<div class="turn-l">${S.turn>=4?'ยามค่ำ':'เทิร์น'}</div>
+    <div class="turn-n">${thNum(S.turn)}<small>/${thNum(6)}</small></div>
+    <div class="turn-dots">${Array.from({length:6},(_,i)=>`<i class="${i+1<S.turn?'on':i+1===S.turn?'cur':''}"></i>`).join('')}</div>`;
+  $('#stakeCoin').textContent = `×${S.stakes}`;
+  $('#aiStat').innerHTML = `<span>มือ ${S.hand.a.length}</span>${karmaPips(S.karma.a)}${S.vowed.a?'<span>· ลั่นวาจา</span>':''}`;
+  $('#pStat').innerHTML = `${karmaPips(S.karma.p)}<span>กอง ${S.deck.p.length} · บารมี ${getBarami()}</span>`;
 
   const selCard = S.hand.p.find(c=>c.uid===S.sel);
   $('#board').innerHTML = S.locs.map((L,li) => {
     const a = sideTotal(L,'a'), p = sideTotal(L,'p');
     const target = selCard && playing && selCard.cost<=S.energy.p && canPlace(selCard,li) ? 'target' : '';
-    return `<section class="lane">
+    return `<section class="lane ${p>a?'lead-p':a>p?'lead-a':''}">
+      <div class="lane-bg" style="background-image:url(${realmArt(L)})"></div>
       <div class="slots a">${slotsHTML(L,'a')}</div>
-      <div class="loc el-${L.el}" style="background-image:linear-gradient(180deg,rgba(23,12,10,.5),rgba(23,12,10,.35) 45%,rgba(23,12,10,.8)),url(${realmArt(L)})">
-        <div class="tot ${a>p?'lead':''}" aria-label="พลังศัตรู">${a}</div>
-        <div class="lname">${L.name}</div>
-        <div class="lel">ธาตุ${EL[L.el]}</div>
-        <div class="ltext">${L.text}</div>
-        <div class="tot ${p>a?'lead':''}" aria-label="พลังเรา">${p}</div>
+      <div class="loc el-${L.el}">
+        <div class="loc-art" style="background-image:url(${realmArt(L)})"></div>
+        <div class="medal a ${a>p?'win':''}" aria-label="พลังศัตรู ${a}">${a}</div>
+        <div class="loc-body">
+          <div class="loc-name">${L.name}</div>
+          <div class="loc-el">ธาตุ${EL[L.el]}</div>
+          <div class="loc-rule">${L.text}</div>
+        </div>
+        <div class="medal p ${p>a?'win':''}" aria-label="พลังเรา ${p}">${p}</div>
       </div>
       <div class="slots p ${target}" data-li="${li}">${slotsHTML(L,'p')}</div>
     </section>`;
   }).join('');
 
-  $('#hand').innerHTML = S.hand.p.map(c => {
-    const no = c.cost > S.energy.p ? 'no' : '';
-    return `<button class="hc el-${c.el||'none'} ${c.dark?'dk':''} ${S.sel===c.uid?'sel':''} ${no}" data-uid="${c.uid}" type="button">
-      <span class="art" style="background-image:url(${cardArt(c)})"></span><span class="cost"><span>${c.cost}</span></span>
-      <span class="nm">${c.name}</span><span class="pw">${c.power}</span></button>`;
-  }).join('') || '<span class="hint">มือว่าง</span>';
+  const n = S.hand.p.length;
+  $('#hand').innerHTML = S.hand.p.map((c,i) => {
+    const off = i-(n-1)/2;
+    const r = n>1 ? off*Math.min(6, 28/n) : 0, y = Math.abs(off)**1.6*4;
+    return `<button class="hc ${S.sel===c.uid?'sel':''} ${c.cost>S.energy.p?'no':''}" style="--r:${r}deg;--y:${y}px" data-uid="${c.uid}" type="button" aria-label="${c.name} ราคา ${c.cost} พลัง ${c.power}">
+      ${cardFace(c)}</button>`;
+  }).join('') || '<span class="hand-empty">มือว่าง</span>';
+  fanHand();
 
-  const f = S.focus && (findCard(S.focus.uid) || S.focus);
-  if (f){
-    const pw = f.revealed && f.loc>=0 && locOf(f).cards[f.owner].includes(f) ? power(f) : f.power;
-    $('#info').innerHTML = `<img class="ithumb" src="${cardArt(f)}" alt=""><b>${f.name}</b><span class="meta">บุญ ${f.cost} · พลัง ${pw}${f.owner==='a'?' · ของศัตรู':''}</span>
-      <span class="tag el-${f.el||'none'}">${f.el?'ธาตุ'+EL[f.el]:'ไร้ธาตุ'}</span>${f.dark?`<span class="tag dark">สายมืด · กรรม +${f.dark}</span>`:''}
-      <p>${f.text || 'ไม่มีความสามารถพิเศษ'}</p>`;
+  if (selCard){
+    $('#tip').innerHTML = `<div><span class="tip-n">${selCard.name}</span>
+      <span class="chip el-${selCard.el||'none'}">${selCard.el?'ธาตุ'+EL[selCard.el]:'ไร้ธาตุ'}</span>${selCard.dark?`<span class="chip dark">สายมืด กรรม+${selCard.dark}</span>`:''}
+      <div>${selCard.text || 'ไม่มีความสามารถพิเศษ'}</div></div>`;
   } else {
-    $('#info').innerHTML = `<span class="hint">แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการลง · ยึดให้ได้ 2 ใน 3 ภพเมื่อจบเทิร์นที่ ๖</span>`;
+    $('#tip').innerHTML = `<span class="tip-hint">${S.phase==='reveal' ? 'กำลังเปิดการ์ด…' : 'แตะการ์ดในมือ แล้วแตะช่องเรืองแสงฝั่งเรา · แตะการ์ดบนสนามเพื่อดูใกล้ ๆ'}</span>`;
   }
 
-  $('#btnEnd').disabled = !playing;
-  $('#btnEnd').textContent = S.phase==='reveal' ? 'กำลังเปิดการ์ด…' : 'จบเทิร์น';
+  const orb = $('#orb');
+  orb.querySelector('b').textContent = S.energy.p;
+  orb.classList.toggle('empty', S.energy.p===0);
+  const endBtn = $('#btnEnd');
+  endBtn.disabled = !playing;
+  endBtn.querySelector('b').textContent = S.phase==='reveal' ? 'กำลังเปิด' : 'จบเทิร์น';
+  $('#endSub').textContent = `เทิร์น ${thNum(S.turn)}/${thNum(6)}`;
+  const canStillPlay = S.hand.p.some(c => c.cost<=S.energy.p && S.locs.some((L,li)=>canPlace(c,li)));
+  endBtn.classList.toggle('ready', playing && !canStillPlay);
   $('#btnVow').disabled = !playing || S.vowed.p;
-  $('#btnVow').textContent = S.vowed.p ? 'ลั่นวาจาแล้ว' : `ลั่นวาจา ×2`;
   $('#btnRetreat').disabled = !playing;
 
+  for (const f of floaters){
+    const el = document.querySelector(`.mc[data-uid="${f.uid}"]`);
+    if (!el) continue;
+    const s = document.createElement('span');
+    s.className = 'floater ' + (f.n>0?'up':'down'); s.textContent = (f.n>0?'+':'−') + Math.abs(f.n);
+    el.appendChild(s); setTimeout(()=>s.remove(), 1000);
+  }
+  floaters = [];
   for (const L of S.locs) for (const s of ['p','a']) for (const c of L.cards[s]) c.fx = null;
 }
 
-let toastT;
+function fanHand(){
+  const hand = $('#hand'), cards = [...hand.querySelectorAll('.hc')];
+  if (cards.length<2) return;
+  const w = cards[0].getBoundingClientRect().width / (cards[0].classList.contains('sel') ? 1.1 : 1);
+  const avail = hand.clientWidth - 8;
+  const step = Math.min(w*0.8, (avail - w)/(cards.length-1));
+  cards.forEach((c,i) => { c.style.marginLeft = i ? `${step - w}px` : '0'; });
+}
+addEventListener('resize', () => S && fanHand());
+
 function toast(msg){
-  const t = $('#toast'); t.textContent = msg; t.hidden = false;
-  clearTimeout(toastT); toastT = setTimeout(()=>{ t.hidden = true; }, 2400);
+  const t = $('#toast'); t.innerHTML = '';
+  const s = document.createElement('span'); s.textContent = msg; t.appendChild(s);
+}
+
+function openInspect(c){
+  const pw = livePower(c);
+  $('#inspect').innerHTML = `<div class="inspect">${cardFace(c,{power:pw})}
+    <div class="inspect-t glass"><span class="tip-n">${c.name}</span>
+      <span class="tip-meta">${c.owner==='a'?'ของศัตรู · ':''}บุญ ${c.cost} · พลังตั้งต้น ${c.power}${pw!=null?` · ตอนนี้ ${pw}`:''}</span>
+      <div style="margin-top:4px"><span class="el-${c.el||'none'}" style="display:inline-block;font-size:.66rem;font-weight:600;padding:0 7px;border-radius:999px;color:#120a07;background:var(--elc)">${c.el?'ธาตุ'+EL[c.el]:'ไร้ธาตุ'}</span>
+      ${c.dark?`<span style="display:inline-block;font-size:.66rem;font-weight:600;padding:0 7px;border-radius:999px;color:#120a07;background:var(--karma)">สายมืด กรรม+${c.dark}</span>`:''}</div>
+      <div style="margin-top:6px">${c.text || 'ไม่มีความสามารถพิเศษ'}</div></div></div>`;
+  $('#inspect').hidden = false;
 }
 
 function buildRules(){
-  $('#locGallery').innerHTML = LOCS.map(L => `<div class="gcard el-${L.el}"><img class="gimg" src="${realmArt(L)}" alt="" loading="lazy"><div class="gt"><span class="gn">${L.name}</span><span class="tag">ธาตุ${EL[L.el]}</span></div>${L.text}</div>`).join('');
-  $('#cardGallery').innerHTML = [...CARDS].sort((a,b)=>a.cost-b.cost).map(c => `<div class="gcard withthumb el-${c.el||'none'}"><img src="${cardArt(c)}" alt="" loading="lazy">
-    <div class="gt"><span class="gn">${c.name}</span><span class="gs">บุญ ${c.cost} · พลัง ${c.power}</span></div>
-    <div><span class="tag">${c.el?'ธาตุ'+EL[c.el]:'ไร้ธาตุ'}</span>${c.dark?`<span class="tag dark">สายมืด · กรรม +${c.dark}</span>`:''}</div>
+  $('#locGallery').innerHTML = LOCS.map(L => `<div class="litem el-${L.el}"><img src="${realmArt(L)}" alt="" loading="lazy">
+    <div><b>${L.name}</b> <span class="loc-el" style="display:inline-block">ธาตุ${EL[L.el]}</span><br>${L.text}</div></div>`).join('');
+  $('#cardGallery').innerHTML = [...CARDS].sort((a,b)=>a.cost-b.cost).map(c => `<div class="citem">${cardFace(c)}
     <div>${c.text || 'ไม่มีความสามารถพิเศษ'}</div></div>`).join('');
-  // preload art so revealed cards don't flash empty
   [...CARDS.map(cardArt), ...LOCS.map(realmArt), 'art/ui/cardback.webp', 'art/ui/slot.webp'].forEach(src => { const i = new Image(); i.src = src; });
 }
+
+/* ---------- ambient gold dust ---------- */
+(function dust(){
+  const cv = $('#dust'); if (!cv || REDUCED) return;
+  const ctx = cv.getContext('2d'); let W=0, H=0; const dpr = Math.min(devicePixelRatio||1, 2);
+  const P = Array.from({length:46}, () => ({x:Math.random(), y:Math.random(), r:Math.random()*1.6+.4, s:Math.random()*.00045+.00015, a:Math.random()*.5+.25, ph:Math.random()*6}));
+  const size = () => { W = cv.width = innerWidth*dpr; H = cv.height = innerHeight*dpr; };
+  size(); addEventListener('resize', size);
+  (function frame(t){
+    ctx.clearRect(0,0,W,H);
+    for (const p of P){
+      p.y -= p.s; if (p.y < -.02){ p.y = 1.02; p.x = Math.random(); }
+      const x = (p.x + Math.sin(t/3200 + p.ph)*.012)*W, y = p.y*H;
+      ctx.beginPath(); ctx.arc(x, y, p.r*dpr, 0, 7);
+      ctx.fillStyle = `rgba(246,220,150,${p.a*(.55+.45*Math.sin(t/800+p.ph))})`;
+      ctx.shadowColor = 'rgba(246,200,110,.8)'; ctx.shadowBlur = 6*dpr; ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  })(0);
+})();
 
 /* ---------- events ---------- */
 let retreatArm = 0;
 document.addEventListener('click', e => {
   const close = e.target.closest('[data-close]');
   if (close){ $('#'+close.dataset.close).hidden = true; return; }
-  if (e.target.classList.contains('modal') && e.target.id==='rules'){ e.target.hidden = true; return; }
+  if (e.target.id==='rules'){ e.target.hidden = true; return; }
+  if (e.target.closest('#inspect')){ $('#inspect').hidden = true; return; }
+  if (!S || S.phase==='over') return;
   const hc = e.target.closest('.hc');
   if (hc){ selectHand(+hc.dataset.uid); return; }
   const mc = e.target.closest('.mc[data-uid]');
   if (mc){
     const c = findCard(+mc.dataset.uid);
     if (c && c.owner==='p' && !c.revealed && S.phase==='play'){ unplace(c.uid); return; }
-    if (c){ S.focus = c; render(); }
+    if (c) openInspect(c);
     return;
   }
   const slots = e.target.closest('.slots.p');
   if (slots && S.sel){ place(+slots.dataset.li); return; }
+  if (S.sel && !e.target.closest('.dock')){ S.sel = null; render(); }
 });
 $('#btnEnd').addEventListener('click', endTurn);
 $('#btnVow').addEventListener('click', () => {
@@ -625,15 +846,15 @@ $('#btnVow').addEventListener('click', () => {
 });
 $('#btnRetreat').addEventListener('click', () => {
   if (S.phase!=='play') return;
-  const b = $('#btnRetreat');
   if (Date.now() - retreatArm < 3000){ finish('p-retreat'); return; }
-  retreatArm = Date.now(); b.textContent = 'แตะอีกครั้งเพื่อถอย';
-  setTimeout(()=>{ b.textContent = 'ถอย'; }, 3000);
+  retreatArm = Date.now(); $('#retreatLbl').textContent = 'แตะอีกครั้ง';
+  toast('แตะธงอีกครั้งเพื่อถอย (เสียบารมีครึ่งเดียว)');
+  setTimeout(()=>{ $('#retreatLbl').textContent = 'ถอย'; }, 3000);
 });
 $('#btnNew').addEventListener('click', newGame);
 $('#btnAgain').addEventListener('click', newGame);
 $('#btnRules').addEventListener('click', () => { $('#rules').hidden = false; });
-document.addEventListener('keydown', e => { if (e.key==='Escape') $('#rules').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key==='Escape'){ $('#rules').hidden = true; $('#inspect').hidden = true; } });
 
 buildRules();
 newGame();
