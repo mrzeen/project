@@ -60,10 +60,9 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 .slots.p.target{background:rgba(216,166,66,.14);outline:1px dashed var(--gold);cursor:pointer}
 .slot{border:1px dashed rgba(181,156,126,.22);border-radius:6px}
 
-.mc{position:relative;border-radius:6px;border:1px solid rgba(243,214,140,.55);padding:0;min-width:0;
-  background:linear-gradient(160deg,color-mix(in srgb,var(--elc) 78%,#000),color-mix(in srgb,var(--elc) 22%,var(--panel)));
+.mc{position:relative;border-radius:6px;border:2px solid var(--elc);padding:0;min-width:0;
+  background-color:var(--panel);background-size:cover;background-position:center 20%;
   display:grid;place-items:center;overflow:hidden}
-.mc .g{font-family:var(--f-display);font-size:clamp(1rem,4.2vw,1.55rem);color:var(--gold-hi);text-shadow:0 1px 2px #000;line-height:1}
 .mc .pw,.hc .pw{position:absolute;right:2px;bottom:2px;min-width:1.45em;height:1.45em;padding:0 3px;border-radius:999px;
   background:var(--bg);border:1px solid var(--gold);color:var(--gold-hi);font-weight:700;font-size:.8rem;
   display:grid;place-items:center;font-variant-numeric:tabular-nums}
@@ -80,9 +79,11 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 @keyframes pop{40%{transform:scale(1.5);box-shadow:0 0 10px var(--up)}}
 @keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 
-.loc{border:1px solid var(--gold);border-radius:10px;background:var(--panel-2);padding:6px 6px;text-align:center;
-  display:flex;flex-direction:column;gap:3px;position:relative;
-  background-image:linear-gradient(180deg,color-mix(in srgb,var(--elc) 22%,transparent),transparent 60%)}
+.loc{border:1px solid var(--gold);border-radius:10px;background-color:var(--panel-2);padding:6px 6px;text-align:center;
+  display:flex;flex-direction:column;gap:3px;position:relative;background-size:cover;background-position:center;
+  text-shadow:0 1px 3px #000,0 0 8px #000}
+.loc .ltext{color:var(--ink)}
+.loc .lel{align-self:center;background:rgba(23,12,10,.75);border:1px solid var(--elc);border-radius:999px;padding:0 8px;text-shadow:none}
 .lname{font-family:var(--f-display);color:var(--gold-hi);font-size:clamp(.78rem,2.9vw,1rem);line-height:1.25;text-wrap:balance}
 .lel{font-size:.7rem;color:var(--elc);font-weight:600;letter-spacing:.04em}
 .ltext{font-size:.7rem;color:var(--muted);line-height:1.3;min-height:2.6em}
@@ -90,7 +91,8 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 .tot.lead{color:var(--gold-hi);text-shadow:0 0 10px rgba(243,214,140,.5)}
 .tot.lead::after{content:" ◆";font-size:.6rem;vertical-align:middle}
 
-.info{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:3.6em;font-size:.88rem;line-height:1.45}
+.info{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:3.6em;font-size:.88rem;line-height:1.45;display:flow-root}
+.ithumb{float:left;width:52px;aspect-ratio:3/4;object-fit:cover;border-radius:6px;border:1px solid var(--gold);margin-right:10px}
 .info b{font-family:var(--f-display);font-weight:400;color:var(--gold-hi);font-size:1rem;margin-right:6px}
 .info .meta{color:var(--muted);font-size:.8rem}
 .info p{margin:2px 0 0}
@@ -99,11 +101,15 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 .hint{color:var(--muted)}
 
 .hand{display:flex;gap:8px;overflow-x:auto;padding:8px 2px 6px;min-height:142px;scrollbar-width:thin}
-.hc{position:relative;flex:0 0 auto;width:88px;aspect-ratio:5/7;border-radius:9px;border:1px solid var(--gold);padding:0;
-  background:linear-gradient(170deg,color-mix(in srgb,var(--elc) 80%,#000) 0 58%,var(--panel) 58%);
+.hc{position:relative;flex:0 0 auto;width:88px;aspect-ratio:5/7;border-radius:9px;border:1px solid var(--gold);padding:0;overflow:hidden;
+  background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--elc) 35%,var(--panel)));
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;transition:transform .15s,box-shadow .15s}
-.hc .g{font-family:var(--f-display);font-size:2rem;color:var(--gold-hi);margin-top:22%;text-shadow:0 2px 3px #000;line-height:1}
-.hc .nm{position:absolute;left:3px;right:3px;bottom:22px;font-size:.72rem;line-height:1.15;text-align:center;font-weight:600}
+.hc .art{position:absolute;left:0;right:0;top:0;height:68%;background-size:cover;background-position:center 15%;
+  border-bottom:2px solid var(--elc)}
+.hc .nm{position:absolute;left:3px;right:3px;bottom:20px;font-size:.7rem;line-height:1.15;text-align:center;font-weight:600}
+.gimg{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;margin-bottom:6px;display:block}
+.gcard.withthumb{display:grid;grid-template-columns:56px minmax(0,1fr);gap:4px 10px;align-items:start}
+.gcard.withthumb img{width:56px;aspect-ratio:3/4;object-fit:cover;border-radius:5px;grid-row:span 3}
 .hc .cost{position:absolute;left:3px;top:3px;width:1.6em;height:1.6em;transform:rotate(45deg);background:var(--gold);border-radius:3px;
   display:grid;place-items:center}
 .hc .cost span{transform:rotate(-45deg);color:var(--bg);font-weight:700;font-size:.82rem}
@@ -480,13 +486,15 @@ function findCard(uid){
 /* ---------- rendering ---------- */
 const pips = (n,max,cls) => `<span class="pips">${Array.from({length:max},(_,i)=>`<span class="${cls}${i<n?' on':''}"></span>`).join('')}</span>`;
 
-function miniCard(c){
-  if (!c.revealed && c.owner==='a') return `<button class="mc back" type="button" aria-label="การ์ดคว่ำของศัตรู"></button>`;
+const cardArt = c => `art/cards/${c.id}.webp`;
+const realmArt = L => `art/realms/${L.id}.webp`;
+function miniCard(c, style){
+  if (!c.revealed && c.owner==='a') return `<button class="mc back" style="${style}" type="button" aria-label="การ์ดคว่ำของศัตรู"></button>`;
   const pw = c.revealed ? power(c) : c.power;
   const cmp = !c.revealed ? '' : pw>c.power ? 'hi' : pw<c.power ? 'lo' : '';
   const fx = c.fx==='flip' ? 'flip' : c.fx ? 'fx-'+c.fx : '';
-  return `<button class="mc el-${c.el||'none'} ${c.dark?'dk':''} ${c.revealed?'':'pend'} ${fx}" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw}">
-    <span class="g">${c.g}</span><span class="pw ${cmp}">${pw}</span></button>`;
+  return `<button class="mc el-${c.el||'none'} ${c.dark?'dk':''} ${c.revealed?'':'pend'} ${fx}" style="${style};background-image:url(${cardArt(c)})" data-uid="${c.uid}" type="button" aria-label="${c.name} พลัง ${pw}">
+    <span class="pw ${cmp}">${pw}</span></button>`;
 }
 function slotsHTML(L, side){
   const cap = L.cap||4, cells=[];
@@ -494,7 +502,7 @@ function slotsHTML(L, side){
     const row = side==='a' ? 2 - Math.floor(i/2) : 1 + Math.floor(i/2);
     const style = `grid-row:${row};grid-column:${i%2+1}`;
     const c = L.cards[side][i];
-    if (c) cells.push(miniCard(c).replace('<button ', `<button style="${style}" `));
+    if (c) cells.push(miniCard(c, style));
     else if (i<cap) cells.push(`<span class="slot" style="${style}"></span>`);
   }
   return cells.join('');
@@ -515,7 +523,7 @@ function render(){
     const target = selCard && playing && selCard.cost<=S.energy.p && canPlace(selCard,li) ? 'target' : '';
     return `<section class="lane">
       <div class="slots a">${slotsHTML(L,'a')}</div>
-      <div class="loc el-${L.el}">
+      <div class="loc el-${L.el}" style="background-image:linear-gradient(180deg,rgba(23,12,10,.5),rgba(23,12,10,.35) 45%,rgba(23,12,10,.8)),url(${realmArt(L)})">
         <div class="tot ${a>p?'lead':''}" aria-label="พลังศัตรู">${a}</div>
         <div class="lname">${L.name}</div>
         <div class="lel">ธาตุ${EL[L.el]}</div>
@@ -529,14 +537,14 @@ function render(){
   $('#hand').innerHTML = S.hand.p.map(c => {
     const no = c.cost > S.energy.p ? 'no' : '';
     return `<button class="hc el-${c.el||'none'} ${c.dark?'dk':''} ${S.sel===c.uid?'sel':''} ${no}" data-uid="${c.uid}" type="button">
-      <span class="cost"><span>${c.cost}</span></span><span class="g">${c.g}</span>
+      <span class="art" style="background-image:url(${cardArt(c)})"></span><span class="cost"><span>${c.cost}</span></span>
       <span class="nm">${c.name}</span><span class="pw">${c.power}</span></button>`;
   }).join('') || '<span class="hint">มือว่าง</span>';
 
   const f = S.focus && (findCard(S.focus.uid) || S.focus);
   if (f){
     const pw = f.revealed && f.loc>=0 && locOf(f).cards[f.owner].includes(f) ? power(f) : f.power;
-    $('#info').innerHTML = `<b>${f.name}</b><span class="meta">บุญ ${f.cost} · พลัง ${pw}${f.owner==='a'?' · ของศัตรู':''}</span>
+    $('#info').innerHTML = `<img class="ithumb" src="${cardArt(f)}" alt=""><b>${f.name}</b><span class="meta">บุญ ${f.cost} · พลัง ${pw}${f.owner==='a'?' · ของศัตรู':''}</span>
       <span class="tag el-${f.el||'none'}">${f.el?'ธาตุ'+EL[f.el]:'ไร้ธาตุ'}</span>${f.dark?`<span class="tag dark">สายมืด · กรรม +${f.dark}</span>`:''}
       <p>${f.text || 'ไม่มีความสามารถพิเศษ'}</p>`;
   } else {
@@ -559,11 +567,13 @@ function toast(msg){
 }
 
 function buildRules(){
-  $('#locGallery').innerHTML = LOCS.map(L => `<div class="gcard el-${L.el}"><div class="gt"><span class="gn">${L.name}</span><span class="tag">ธาตุ${EL[L.el]}</span></div>${L.text}</div>`).join('');
-  $('#cardGallery').innerHTML = [...CARDS].sort((a,b)=>a.cost-b.cost).map(c => `<div class="gcard el-${c.el||'none'}">
+  $('#locGallery').innerHTML = LOCS.map(L => `<div class="gcard el-${L.el}"><img class="gimg" src="${realmArt(L)}" alt="" loading="lazy"><div class="gt"><span class="gn">${L.name}</span><span class="tag">ธาตุ${EL[L.el]}</span></div>${L.text}</div>`).join('');
+  $('#cardGallery').innerHTML = [...CARDS].sort((a,b)=>a.cost-b.cost).map(c => `<div class="gcard withthumb el-${c.el||'none'}"><img src="${cardArt(c)}" alt="" loading="lazy">
     <div class="gt"><span class="gn">${c.name}</span><span class="gs">บุญ ${c.cost} · พลัง ${c.power}</span></div>
-    <span class="tag">${c.el?'ธาตุ'+EL[c.el]:'ไร้ธาตุ'}</span>${c.dark?`<span class="tag dark">สายมืด · กรรม +${c.dark}</span>`:''}
+    <div><span class="tag">${c.el?'ธาตุ'+EL[c.el]:'ไร้ธาตุ'}</span>${c.dark?`<span class="tag dark">สายมืด · กรรม +${c.dark}</span>`:''}</div>
     <div>${c.text || 'ไม่มีความสามารถพิเศษ'}</div></div>`).join('');
+  // preload art so revealed cards don't flash empty
+  [...CARDS.map(cardArt), ...LOCS.map(realmArt)].forEach(src => { const i = new Image(); i.src = src; });
 }
 
 /* ---------- events ---------- */
