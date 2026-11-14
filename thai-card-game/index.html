@@ -12,7 +12,7 @@
 :root{
   --bg:#170c0a; --panel:#24130f; --panel-2:#331b15; --line:#5c3b22;
   --gold:#d8a642; --gold-hi:#f3d68c; --ink:#f5ead6; --muted:#b59c7e;
-  --lac:#9b231c; --lac-2:#6e1612; --shade:rgba(8,3,2,.72);
+  --lac:#9b231c; --lac-2:#6e1612; --mat:#0d0806; --shade:rgba(8,3,2,.72);
   --earth:#b9813f; --water:#3b8fc8; --wind:#3fa383; --fire:#d9552e; --none:#8a7a68;
   --karma:#a678e0; --up:#9fe08a; --down:#ff8a72;
   --f-display:'Chonburi','Bai Jamjuree',Georgia,serif;
@@ -54,8 +54,16 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 .boon{width:11px;height:11px;transform:rotate(45deg);border:1px solid var(--gold);border-radius:2px}
 .boon.on{background:var(--gold)}
 
-.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:8px 6px;
+  border:24px solid var(--gold);border-image:url(art/ui/playmat.webp) 96 / 24px stretch;
+  background-color:var(--mat);
+  background-image:radial-gradient(ellipse at 50% 50%,rgba(216,166,66,.10),transparent 70%),
+    radial-gradient(rgba(216,166,66,.07) 1px,transparent 1.6px);
+  background-size:100% 100%,12px 12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55)}
 .lane{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lane{padding-inline:3px}
+.lane + .lane{border-left:1px solid rgba(216,166,66,.45)}
 .slots{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;aspect-ratio:4/5;border-radius:10px;padding:3px;transition:background .15s}
 .slots.p.target{background:rgba(216,166,66,.14);outline:1px dashed var(--gold);cursor:pointer}
 .slot{border:1px dashed rgba(181,156,126,.22);border-radius:6px}
@@ -70,8 +78,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 .pw.lo{color:var(--down);border-color:var(--down)}
 .mc.dk{box-shadow:inset 0 0 10px var(--karma)}
 .mc.pend{opacity:.62;border-style:dashed}
-.mc.back{background:repeating-linear-gradient(45deg,var(--lac) 0 6px,var(--lac-2) 6px 12px);border-color:var(--gold)}
-.mc.back::after{content:"";width:34%;aspect-ratio:1;transform:rotate(45deg);border:1px solid var(--gold-hi)}
+.mc.back{background:var(--lac) url(art/ui/cardback.webp) center/cover;border-color:var(--gold)}
 .mc.flip{animation:flip .38s ease-out}
 .fx-up .pw{animation:pop .5s ease-out}
 .fx-down{animation:shake .4s}
@@ -147,6 +154,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 @media (max-width:440px){
   body{font-size:14px}
   .hc{width:78px}
+  .board{border-width:16px;border-image-width:16px;padding:6px 4px;gap:3px}
   .ltext{font-size:.64rem}
   .logo{font-size:1.35rem}
 }
@@ -185,6 +193,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
     <div class="row"><h2>วิธีเล่นศึกสามภพ</h2><button class="ghost" data-close="rules" type="button">ปิด</button></div>
     <ol>
       <li>สนามมี <b>3 ภพ</b> สุ่มมาจาก 9 แห่ง แต่ละภพมีธาตุและกฎของตัวเอง</li>
+      <li>การ์ด 25 ใบมีอย่างละใบเดียว แจกให้สองฝ่ายฝ่ายละ 12 ใบ ไม่มีการ์ดซ้ำในเด็ค และไม่มีใบไหนอยู่ทั้งสองฝ่าย</li>
       <li>เล่น <b>6 เทิร์น</b> เทิร์นที่ N ได้ <b>บุญ</b> N แต้มไว้ลงการ์ด บุญที่เหลือไม่สะสม</li>
       <li>แตะการ์ดในมือ แล้วแตะช่องฝั่งเราใต้ภพที่ต้องการ ลงได้ภพละ 4 ใบ แตะการ์ดที่เพิ่งลงอีกครั้งเพื่อเก็บคืน</li>
       <li>กด <b>จบเทิร์น</b> แล้วทั้งสองฝ่ายเปิดการ์ดพร้อมกัน เทิร์นคี่เราเปิดก่อน เทิร์นคู่ศัตรูเปิดก่อน</li>
@@ -301,16 +310,28 @@ function canPlace(c, li){
   return true;
 }
 
-function buildDeck(){
-  const by = n => CARDS.filter(x=>x.cost===n);
-  const pick = (arr,n) => shuffle([...arr]).slice(0,n);
-  return shuffle([...pick(by(1),3),...pick(by(2),3),...pick(by(3),2),...pick(by(4),2),...pick(by(5),1),...pick(by(6),1)]);
+// Every card exists once in the whole game: deal each cost tier alternately so
+// neither deck repeats a card and the two decks never share one.
+function dealDecks(){
+  const decks = {p:[], a:[]};
+  let start = Math.random()<.5 ? 'p' : 'a';
+  for (let cost=1; cost<=6; cost++){
+    let s = start;
+    shuffle(CARDS.filter(x=>x.cost===cost)).forEach(d => { decks[s].push(d); s = OPP[s]; });
+    start = OPP[start]; // alternate who receives the odd card of a tier
+  }
+  for (const s of ['p','a']) while (decks[s].length > 12){
+    const cheap = decks[s].filter(d=>d.cost<=3);
+    decks[s].splice(decks[s].indexOf(cheap[Math.floor(Math.random()*cheap.length)]), 1);
+  }
+  return {p:shuffle(decks.p), a:shuffle(decks.a)};
 }
 
 function newGame(){
   uidN = 0;
   const locs = shuffle([...LOCS]).slice(0,3).map(L => ({...L, cards:{p:[],a:[]}}));
-  S = {turn:0, locs, deck:{p:buildDeck().map(d=>inst(d,'p')), a:buildDeck().map(d=>inst(d,'a'))},
+  const dk = dealDecks();
+  S = {turn:0, locs, deck:{p:dk.p.map(d=>inst(d,'p')), a:dk.a.map(d=>inst(d,'a'))},
        hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
        pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null, focus:null};
   for (let i=0;i<3;i++){ draw('p'); draw('a'); }
@@ -573,7 +594,7 @@ function buildRules(){
     <div><span class="tag">${c.el?'ธาตุ'+EL[c.el]:'ไร้ธาตุ'}</span>${c.dark?`<span class="tag dark">สายมืด · กรรม +${c.dark}</span>`:''}</div>
     <div>${c.text || 'ไม่มีความสามารถพิเศษ'}</div></div>`).join('');
   // preload art so revealed cards don't flash empty
-  [...CARDS.map(cardArt), ...LOCS.map(realmArt)].forEach(src => { const i = new Image(); i.src = src; });
+  [...CARDS.map(cardArt), ...LOCS.map(realmArt), 'art/ui/cardback.webp'].forEach(src => { const i = new Image(); i.src = src; });
 }
 
 /* ---------- events ---------- */
