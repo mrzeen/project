@@ -22,7 +22,7 @@ const {chromium} = require('playwright');
       HP0 = hp; LANE_CAP = cap; MAXT = maxt; RALLY = [r0, r1];
       const st = {n:0, ends:{}, ko:0, lead:0, swing:0, deck:{}};
       keys.forEach(k => st.deck[k] = {w:0, n:0});
-      for (let g=0; g<3000; g++){
+      for (let g=0; g<7000; g++){
         const ka = keys[g%keys.length], kb = keys[Math.floor(Math.random()*keys.length)];
         newGame({decks:{host:PRESETS[ka].ids, guest:PRESETS[kb].ids}}); FX = [];
         let t, leader3 = null;

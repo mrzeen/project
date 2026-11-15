@@ -306,6 +306,17 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 .end-acts{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
 .end-acts .end-btn{margin:0}
 
+/* ---------- first-game coach ---------- */
+#coach{position:fixed;left:50%;transform:translateX(-50%);top:calc(96px + env(safe-area-inset-top,0px));z-index:35;width:min(360px,calc(100% - 32px));
+  padding:10px 14px 12px;border-radius:16px;background:rgba(18,10,7,.94);border:1px solid var(--gold);
+  box-shadow:0 12px 34px rgba(0,0,0,.6),0 0 22px rgba(246,220,150,.25);animation:coachin .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes coachin{from{opacity:0;transform:translate(-50%,-14px)}}
+.coach-h{font-size:.66rem;letter-spacing:.14em;color:var(--gold)}
+#coach p{margin:2px 0 10px;font-size:.9rem;line-height:1.55;color:var(--ink)}
+.coach-a{display:flex;justify-content:space-between;gap:8px}
+.coach-a button{padding:6px 14px;border-radius:10px;font-size:.8rem;color:var(--muted)}
+#coachOk{font-weight:600;color:#2a1206;background:linear-gradient(180deg,#fff0bd,#e7b552 55%,#a8701c)}
+
 /* ---------- traps and signature moves ---------- */
 .mc.armed .cf{animation:trapglow 1.6s ease-in-out infinite}
 .mc.armed.mine .cf{filter:saturate(.5) brightness(.6)}
@@ -541,6 +552,7 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
       <div class="room-st" id="roomStatus" aria-live="polite"></div>
     </div>
     <p class="menu-msg" id="menuMsg" aria-live="polite"></p>
+    <button class="deck-row" id="mTut" type="button"><span class="deck-l">บทสอน</span><b id="mTutV"></b><span class="deck-go">สลับ</span></button>
     <button class="deck-row" id="mSound" type="button"><span class="deck-l">เสียง</span><b id="mSoundV"></b><span class="deck-go">สลับ</span></button>
     <p class="menu-note" id="netNote"></p>
   </div>
@@ -620,6 +632,11 @@ button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 <div class="toast" id="toast" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 <div id="turnban" aria-live="polite" hidden></div>
+<div id="coach" role="status" hidden>
+  <div class="coach-h">บทสอน</div>
+  <p id="coachT"></p>
+  <div class="coach-a"><button type="button" id="coachSkip">ข้ามบทสอน</button><button type="button" id="coachOk">เข้าใจแล้ว</button></div>
+</div>
 
 <script>
 const $ = s => document.querySelector(s);
@@ -664,7 +681,7 @@ const CARDS = [
   {id:'novice', name:'เด็กวัด', cost:1, power:2, el:'earth', text:'เมื่อเปิด: กรรมของเรา −1', reveal:c=>addKarma(c.owner,-1)},
   {id:'krasue', name:'ผีกระสือ', cost:1, power:3, el:'fire', dark:1, text:''},
   {id:'blackcat', name:'แมวดำ', cost:1, power:2, el:null, dark:1, text:'เมื่อเปิด: การ์ดศัตรูที่แรงที่สุดในภพนี้ −1', reveal:c=>{const t=strongest(foesAt(c)); if(t) buff(t,-1);}},
-  {id:'goldfish', name:'ปลาตะเพียนทอง', cost:1, power:1, el:'water', text:'เมื่อเปิด: เทิร์นหน้าได้บุญ +1', reveal:c=>{S.bonus[c.owner]+=1;}},
+  {id:'goldfish', name:'ปลาตะเพียนทอง', cost:1, power:2, el:'water', text:'เมื่อเปิด: เทิร์นหน้าได้บุญ +1', reveal:c=>{S.bonus[c.owner]+=1;}},
   {id:'dryad', name:'นางไม้', cost:2, power:2, el:'earth', text:'ต่อเนื่อง: การ์ดอื่นของเราในภพนี้ +1', aura:(o,c)=>c.owner===o.owner&&c!==o?1:0},
   {id:'hanuman', name:'หนุมาน', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าศัตรูมีการ์ดในภพนี้มากกว่าเรา +3', reveal:c=>{if(foesAt(c).length>mineAt(c).length) buff(c,3);}},
   {id:'pob', name:'ผีปอบ', cost:2, power:1, el:'earth', dark:1, text:'เมื่อเปิด: กินการ์ดอื่นของเราที่อ่อนที่สุดในภพนี้ แล้วได้พลังของมัน', reveal:c=>{const v=weakest(mineAt(c).filter(x=>x!==c)); if(v){const p=Math.max(0,v.power+v.buff); destroy(v); buff(c,p);}}},
@@ -679,14 +696,14 @@ const CARDS = [
   {id:'garuda', name:'ครุฑ', cost:4, power:5, el:'wind', text:'เมื่อเปิด: ทำลายการ์ดธาตุน้ำที่แรงที่สุดของศัตรูในภพนี้', reveal:c=>{const t=strongest(foesAt(c).filter(x=>x.el==='water')); if(t) destroy(t);}},
   {id:'nak', name:'แม่นาก', cost:4, power:3, el:'water', dark:2, text:'ต่อเนื่อง: +1 ต่อการ์ดศัตรู 1 ใบในภพนี้', self:c=>foesAt(c).length},
   {id:'khotchasi', name:'คชสีห์', cost:4, power:5, el:'earth', text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ +1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,1);})},
-  {id:'makara', name:'มกร', cost:5, power:8, el:'water', text:'ไม่มีความสามารถพิเศษ แต่ตัวใหญ่'},
+  {id:'makara', name:'มกร', cost:5, power:9, el:'water', text:'ไม่มีความสามารถพิเศษ แต่ตัวใหญ่'},
   {id:'tosakan', name:'ทศกัณฐ์', cost:5, power:10, el:'fire', dark:2, text:'เมื่อเปิด: การ์ดอื่นของเราในภพนี้ −1', reveal:c=>mineAt(c).forEach(t=>{if(t!==c) buff(t,-1);})},
   {id:'hermit', name:'ฤๅษี', cost:5, power:4, el:'wind', text:'เมื่อเปิด: ล้างกรรมของเราเป็น 0 และการ์ดอื่นของเราในภพนี้ +1', reveal:c=>{addKarma(c.owner,-99); mineAt(c).forEach(t=>{if(t!==c) buff(t,1);});}},
   {id:'suvanna', name:'สุวรรณมัจฉา', cost:5, power:5, el:'water', text:'เมื่อเปิด: การ์ดของเราในภพข้างเคียง +1', reveal:c=>{[c.loc-1,c.loc+1].forEach(j=>{if(S.locs[j]) revealed(S.locs[j].cards[c.owner]).forEach(t=>buff(t,1));});}},
   {id:'vessuwan', name:'ท้าวเวสสุวรรณ', cost:6, power:10, el:null, text:'ต่อเนื่อง: ศัตรูลงการ์ดสายมืดในภพนี้ไม่ได้', blockDark:true},
   {id:'nagaraj', name:'พญานาคราช', cost:6, power:9, el:'water', text:'เมื่อเปิด: การ์ดธาตุน้ำอื่นของเราทุกภพ +1', reveal:c=>S.locs.forEach(L=>revealed(L.cards[c.owner]).forEach(t=>{if(t!==c&&t.el==='water') buff(t,1);}))},
   // ---- ชุดที่ 2 ----
-  {id:'karawek', name:'นกการเวก', cost:1, power:1, el:'wind', text:'เมื่อเปิด: จั่วการ์ด 1 ใบ', reveal:c=>draw(c.owner)},
+  {id:'karawek', name:'นกการเวก', cost:1, power:2, el:'wind', text:'เมื่อเปิด: จั่วการ์ด 1 ใบ', reveal:c=>draw(c.owner)},
   {id:'kumanthong', name:'กุมารทอง', cost:1, power:2, el:'earth', dark:1, text:'เมื่อเปิด: การ์ดสุ่ม 2 ใบในมือเรา +1 พลัง', reveal:c=>shuffle([...S.hand[c.owner]].sort((x,y)=>x.id<y.id?-1:1)).slice(0,2).forEach(t=>buff(t,1))},
   {id:'phosop', name:'แม่โพสพ', cost:1, power:1, el:'earth', text:'ต่อเนื่อง: ถ้าภพนี้เป็นธาตุดิน +3', self:c=>locOf(c).el==='earth'?3:0},
   {id:'nangkwak', name:'นางกวัก', cost:2, power:2, el:null, text:'เมื่อเปิด: กวักการ์ดที่แพงที่สุดในกองจั่วมาไว้ในมือ', reveal:c=>{
@@ -696,9 +713,9 @@ const CARDS = [
     const diff = li => sideTotal(S.locs[li],c.owner) - sideTotal(S.locs[li],OPP[c.owner]);
     const opts = S.locs.map((L,li)=>li).filter(li => li!==c.loc && S.locs[li].cards[c.owner].length < (S.locs[li].cap||4)).sort((a,b)=>diff(a)-diff(b));
     if (opts.length && diff(opts[0]) < diff(c.loc)) moveCard(c, opts[0]);}},
-  {id:'pranbun', name:'พรานบุญ', cost:2, power:3, el:'earth', text:'เมื่อเปิด: คล้องบ่วง ทำลายการ์ดธาตุลมที่อ่อนที่สุดของศัตรูในภพนี้', reveal:c=>{const t=weakest(foesAt(c).filter(x=>x.el==='wind')); if(t) destroy(t);}},
+  {id:'pranbun', name:'พรานบุญ', cost:2, power:2, el:'earth', text:'เมื่อเปิด: คล้องบ่วง ทำลายการ์ดธาตุลมที่อ่อนที่สุดของศัตรูในภพนี้', reveal:c=>{const t=weakest(foesAt(c).filter(x=>x.el==='wind')); if(t) destroy(t);}},
   {id:'chalawan', name:'ชาละวัน', cost:2, power:2, el:'water', dark:1, text:'เมื่อเปิด: ขย้ำการ์ดราคา 1 ของศัตรูในภพนี้ 1 ใบ', reveal:c=>{const t=strongest(foesAt(c).filter(x=>x.cost===1)); if(t) destroy(t);}},
-  {id:'manohra', name:'มโนราห์', cost:3, power:3, el:'wind', text:'ต่อเนื่อง: การ์ดธาตุลมอื่นของเราทุกภพ +1', gaura:(o,c)=>c.owner===o.owner&&c!==o&&c.el==='wind'?1:0},
+  {id:'manohra', name:'มโนราห์', cost:3, power:4, el:'wind', text:'ต่อเนื่อง: การ์ดธาตุลมอื่นของเราทุกภพ +1', gaura:(o,c)=>c.owner===o.owner&&c!==o&&c.el==='wind'?1:0},
   {id:'kongkoi', name:'ผีกองกอย', cost:3, power:3, el:'earth', dark:1, text:'เมื่อเปิด: ดูดพลัง 2 จากการ์ดศัตรูที่แรงที่สุดในภพนี้', reveal:c=>{const t=strongest(foesAt(c)); if(t){ buff(t,-2); buff(c,2); }}},
   {id:'aphai', name:'พระอภัยมณี', cost:3, power:3, el:'wind', text:'เมื่อเปิด: เป่าปี่ให้การ์ดศัตรูที่ราคาสูงสุดในภพนี้ −3', reveal:c=>{const f=foesAt(c); if(f.length) buff(f.reduce((b,x)=>x.cost>b.cost?x:b), -3);}},
   {id:'ngueak', name:'นางเงือก', cost:4, power:4, el:'water', text:'เมื่อเปิด: เรียกลูกเงือก (พลัง 2) ลงภพข้างเคียง', reveal:c=>{for (const j of shuffle([c.loc-1,c.loc+1].filter(j=>S.locs[j]))) if (summon(c, TOKENS.babyngueak, j)) break;}},
@@ -708,17 +725,17 @@ const CARDS = [
   {id:'erawan', name:'ช้างเอราวัณ', cost:5, power:6, el:'wind', text:'เมื่อเปิด: เรียกเทวดา (พลัง 3) ลงภพที่เราแพ้อยู่มากที่สุด', reveal:c=>{
     const order = S.locs.map((L,li)=>li).sort((a,b)=>(sideTotal(S.locs[a],c.owner)-sideTotal(S.locs[a],OPP[c.owner]))-(sideTotal(S.locs[b],c.owner)-sideTotal(S.locs[b],OPP[c.owner])));
     for (const li of order) if (summon(c, TOKENS.deva, li)) break;}},
-  {id:'indra', name:'พระอินทร์', cost:6, power:5, el:'wind', text:'เมื่อเปิด: วัชระฟาด ทำลายการ์ดศัตรูที่แรงที่สุดในภพนี้', reveal:c=>{const t=strongest(foesAt(c)); if(t) destroy(t);}},
+  {id:'indra', name:'พระอินทร์', cost:6, power:4, el:'wind', text:'เมื่อเปิด: วัชระฟาด ทำลายการ์ดศัตรูที่แรงที่สุดในภพนี้', reveal:c=>{const t=strongest(foesAt(c)); if(t) destroy(t);}},
   // ---- ชุดอัญเชิญ ----
   {id:'yanang', name:'แม่ย่านาง', cost:2, power:2, el:'water', text:'ต่อเนื่อง: การ์ดเรียกของเราทุกภพ +1', gaura:(o,c)=>c.owner===o.owner&&c.token?1:0},
-  {id:'tani', name:'นางตานี', cost:3, power:2, el:'earth', dark:1, text:'เมื่อเปิด: เรียกผีพราย (พลัง 2) ลงภพอื่นภพละ 1 ตัว', reveal:c=>S.locs.forEach((L,li)=>{if(li!==c.loc) summon(c,TOKENS.phrai,li);})},
+  {id:'tani', name:'นางตานี', cost:3, power:1, el:'earth', dark:1, text:'เมื่อเปิด: เรียกผีพราย (พลัง 2) ลงภพอื่นภพละ 1 ตัว', reveal:c=>S.locs.forEach((L,li)=>{if(li!==c.loc) summon(c,TOKENS.phrai,li);})},
   {id:'ajarn', name:'อาจารย์ไสยเวท', cost:4, power:3, el:'fire', dark:1, text:'เมื่อเปิด: เสกควายธนู (พลัง 4) ลงภพนี้', reveal:c=>summon(c,TOKENS.kwaithanu,c.loc)},
   // ---- ชุดกับดักและเดาใจ ----
-  {id:'yantrap', name:'ยันต์กันผี', cost:1, power:0, el:null, text:'กับดัก: การ์ดศัตรูใบถัดไปที่เปิดในภพนี้ ถ้าเป็นสายมืดถูกทำลาย ถ้าไม่ใช่ −2', trap:(t,c)=>{ if (c.dark) destroy(c); else buff(c,-2); }},
-  {id:'takrut', name:'ตะกรุด', cost:1, power:1, el:'earth', text:'เมื่อเปิด: เทิร์นนี้เราไม่โดนตีจากภพนี้', reveal:c=>{ S.shield.push({li:c.loc, side:c.owner, turn:S.turn}); FX.push({t:'shield', uid:c.uid}); }},
+  {id:'yantrap', name:'ยันต์กันผี', cost:1, power:0, el:null, text:'กับดัก: การ์ดศัตรูใบถัดไปที่เปิดในภพนี้ ถ้าเป็นสายมืดถูกทำลาย ถ้าไม่ใช่ −3', trap:(t,c)=>{ if (c.dark) destroy(c); else buff(c,-3); }},
+  {id:'takrut', name:'ตะกรุด', cost:1, power:2, el:'earth', text:'เมื่อเปิด: เทิร์นนี้เราไม่โดนตีจากภพนี้', reveal:c=>{ S.shield.push({li:c.loc, side:c.owner, turn:S.turn}); FX.push({t:'shield', uid:c.uid}); }},
   {id:'nakabat', name:'บ่วงนาคบาศ', cost:2, power:0, el:'water', text:'กับดัก: การ์ดศัตรูใบถัดไปที่เปิดในภพนี้ −5', trap:(t,c)=>buff(c,-5)},
-  {id:'lak', name:'พระลักษมณ์', cost:2, power:2, el:'wind', text:'เมื่อเปิด: ถ้าเทิร์นนี้ศัตรูไม่ได้ลงการ์ดในภพนี้ ยิงศรตีเลือดศัตรู 3', reveal:c=>{ const o=OPP[c.owner]; if (!S.pending[o].some(x=>x.loc===c.loc)){ S.hp[o]-=3; FX.push({t:'hit', li:c.loc, loser:o, dmg:3}); } }},
-  {id:'nammon', name:'น้ำมนต์', cost:2, power:1, el:'water', text:'เมื่อเปิด: ฟื้นเลือดเรา 3', reveal:c=>heal(c.owner,3)},
+  {id:'lak', name:'พระลักษมณ์', cost:2, power:3, el:'wind', text:'เมื่อเปิด: ถ้าเทิร์นนี้ศัตรูไม่ได้ลงการ์ดในภพนี้ ยิงศรตีเลือดศัตรู 3', reveal:c=>{ const o=OPP[c.owner]; if (!S.pending[o].some(x=>x.loc===c.loc)){ S.hp[o]-=3; FX.push({t:'hit', li:c.loc, loser:o, dmg:3}); } }},
+  {id:'nammon', name:'น้ำมนต์', cost:2, power:2, el:'water', text:'เมื่อเปิด: ฟื้นเลือดเรา 3', reveal:c=>heal(c.owner,3)},
   {id:'lumphrang', name:'หลุมพราง', cost:3, power:0, el:'earth', text:'กับดัก: ทำลายการ์ดศัตรูใบถัดไปที่เปิดในภพนี้', trap:(t,c)=>destroy(c)},
   {id:'suea', name:'เสือสมิง', cost:3, power:4, el:'earth', text:'เมื่อเปิด: ถ้าเทิร์นนี้ศัตรูลงการ์ดในภพนี้ด้วย ซุ่มโจมตี +4', reveal:c=>{ if (S.pending[OPP[c.owner]].some(x=>x.loc===c.loc)) buff(c,4); }},
 ];
@@ -844,7 +861,7 @@ function newGame(opts={}){
                        : {p: opts.decks ? 'rally' : myUltKind(), a: opts.decks ? 'rally' : aiUltKind};
   S = {turn:0, locs, deck:{p:mine.map(d=>inst(d,'p')), a:theirs.map(d=>inst(d,'a'))}, firstOdd: MODE.role==='guest' ? 'a' : 'p', hp:{p:HP0, a:HP0}, rally:{p:0,a:0},
        hand:{p:[],a:[]}, energy:{p:0,a:0}, maxE:{p:0,a:0}, bonus:{p:0,a:0}, karma:{p:0,a:0},
-       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null, shield:[], hex:[], ultPick:false,
+       pending:{p:[],a:[]}, phase:'play', stakes:1, vowed:{p:false,a:false}, sel:null, shield:[], hex:[], ultPick:false, lastLoc:{p:[],a:[]},
        ult:{p:{kind:uk.p, used:false, armed:null}, a:{kind:uk.a, used:false, armed:null}}};
   for (let i=0;i<3;i++){ draw('p'); draw('a'); }
   $('#endModal').hidden = true; $('#inspect').hidden = true;
@@ -859,6 +876,8 @@ function startTurn(){
            sub: S.turn===4 ? 'การ์ดสายมืดทุกใบ +1' : S.turn===MAXT ? 'เทิร์นสุดท้าย' : `บุญ ${S.energy.p}${S.rally.p ? ` · แรงฮึด +${S.rally.p}` : ''}`});
   render();
   if (!MODE.pvp && aiRetreatCheck()) return;
+  coach(S.turn===1 ? 'play' : [S.locs.some(L => L.cards.a.some(x => x.armed)) && 'trap', 'clash', S.rally.p>0 && 'rally',
+                               S.turn>=ULT_FROM && !S.ult.p.used && 'ult', S.turn>=4 && 'night']);
 }
 
 function aiPlan(){
@@ -873,8 +892,13 @@ function aiPlan(){
       if (c.el && L.el){ if (c.el===L.el) est++; else if (BEATS[L.el]===c.el) est--; }
       const foes = revealed(L.cards.p), mine = revealed(L.cards.a);
       if (c.id==='phosop' && L.el==='earth') est += 3;
-      if (c.trap) est += 3 + (foes.length ? 1 : 0);
-      if (c.id==='suea' && foes.length) est += 2; if (c.id==='lak') est += 1; if (c.id==='nammon' && S.hp.a<=HP0-3) est += 3;
+      // read the player: where they played last turn, whether they still have room, and any face-down trap of theirs
+      const pHere = S.lastLoc.p.includes(li), pRoom = L.cards.p.length < (L.cap||4), pTrap = L.cards.p.some(x => x.armed);
+      if (c.trap) est = pRoom ? 2 + foes.length + (pHere ? 3 : 0) : -9;          // set traps where the player keeps coming
+      if (c.id==='suea') est += pHere && pRoom ? 3 : -1;                           // ambush where they are likely to play again
+      if (c.id==='lak') est += !pHere || !pRoom ? 3 : -1;                          // shoot from a realm they are ignoring
+      if (pTrap && !c.trap) est += c.cost<=1 ? 3 : c.cost>=3 ? -(2 + c.cost) : -1; // bait a trap with a cheap card, keep big ones away
+      if (c.id==='nammon' && S.hp.a<=HP0-3) est += 3;
       if (c.id==='takrut' && sideTotal(L,'a') < sideTotal(L,'p')) est += 3;
       if (c.id==='shaman') est += 2; if (c.id==='tani') est += 3; if (c.id==='ajarn') est += 4;
       if (c.id==='pret') est -= 2*L.cards.a.length;
@@ -904,6 +928,12 @@ function aiPlan(){
       c.loc = best; S.locs[best].cards.a.push(c); S.pending.a.push(c); e -= c.cost;
     }
   }
+  S.locs.forEach((L, li) => {                      // into a trapped realm, the cheapest card walks in first
+    if (!L.cards.p.some(x => x.armed)) return;
+    const idx = S.pending.a.map((c,i) => c.loc===li && !c.trap ? i : -1).filter(i => i>=0);
+    const sorted = idx.map(i => S.pending.a[i]).sort((x,y) => x.cost - y.cost);
+    idx.forEach((i,k) => { S.pending.a[i] = sorted[k]; });
+  });
 }
 
 function lanesLead(side, margin){
@@ -926,7 +956,7 @@ async function endTurn(){
   if (S.phase!=='play') return;
   const G = S;                 // if a new game starts (or it ends) mid-reveal, this loop must stop
   const alive = () => S===G && S.phase!=='over';
-  S.sel = null;
+  S.sel = null; coachDone();
   if (MODE.pvp){
     S.phase = 'wait';
     netSendTurn();
@@ -962,6 +992,7 @@ async function endTurn(){
     render();
     await wait(busy ? 1100 : 760); if (!alive()) return;
   }
+  S.lastLoc = {p: S.pending.p.map(c => c.loc), a: S.pending.a.map(c => c.loc)};
   S.pending = {p:[],a:[]};
   await wait(200); if (!alive()) return;
   const hit = karmaCheck(); render();
@@ -1062,6 +1093,7 @@ function place(li){
   c.loc = li; S.locs[li].cards.p.push(c); S.pending.p.push(c);
   S.energy.p -= c.cost; S.sel = null;
   FX.push({t:'land', uid:c.uid});
+  if (TUT.cur==='play'){ coachDone('play'); coach('end'); }
   render();
 }
 function placeReason(c,li){
@@ -1634,6 +1666,34 @@ function buildRules(){
   })(0);
 })();
 
+/* ---------- first-game coach: one short tip at a time, each shown once ---------- */
+const TIPS = {
+  play:'แตะการ์ดในมือ แล้วแตะช่องเรืองแสงเพื่อลงการ์ด เลขสีฟ้าบนการ์ดคือราคา ลูกแก้วด้านล่างคือบุญที่เหลือ',
+  end:'ลงครบแล้วกด "จบเทิร์น" ทั้งสองฝ่ายจะเปิดการ์ดพร้อมกัน อยากเปลี่ยนใจ แตะการ์ดที่เพิ่งลงเพื่อเก็บคืนได้',
+  clash:'จบทุกเทิร์น แต่ละภพจะตีกัน ฝ่ายที่พลังมากกว่าตีอีกฝ่ายเท่ากับส่วนต่าง สูงสุด 6 ต่อภพ ป้ายแดงบนภพบอกว่าใครจะโดนเท่าไร เลือดหมดก่อนแพ้',
+  ult:'ปุ่ม "ไม้ตาย" ข้างกล่องข้อความพร้อมใช้แล้ว ใช้ได้ครั้งเดียวต่อเกม กดแล้วแตะภพที่ต้องการ ท่าจะทำงานตอนจบเทิร์น',
+  night:'ยามค่ำแล้ว การ์ดสายมืด (ขอบม่วง) ได้ +1 ทุกใบ แต่สายมืดสะสมกรรม ครบ 5 เมื่อไร การ์ดที่แรงที่สุดของเราจะโดน −3',
+  trap:'ศัตรูมีการ์ดคว่ำที่ไม่ยอมเปิด นั่นคือกับดัก มันจะทำงานกับการ์ดใบถัดไปที่เราเปิดในภพนั้น ลองส่งการ์ดราคาถูกไปล่อก่อน',
+  rally:'เลือดเราน้อยกว่า เลยได้ "แรงฮึด" เป็นบุญเพิ่มในเทิร์นนี้ ใช้จังหวะนี้พลิกเกม',
+};
+const TUT = {seen:{}, off:false, cur:null};
+try { const v = JSON.parse(localStorage.getItem('samphop-tut')); if (v && typeof v==='object'){ TUT.off = !!v.off; if (v.seen && typeof v.seen==='object') TUT.seen = v.seen; } } catch(e){}
+const saveTut = () => { try { localStorage.setItem('samphop-tut', JSON.stringify({off:TUT.off, seen:TUT.seen})); } catch(e){} };
+function coach(ids){
+  if (TUT.off || MODE.pvp) return;
+  const id = [].concat(ids).find(k => k && TIPS[k] && !TUT.seen[k]); if (!id) return;
+  TUT.cur = id; $('#coachT').textContent = TIPS[id]; $('#coach').hidden = false;
+}
+function coachDone(id){
+  if (!TUT.cur || (id && TUT.cur!==id)) return;
+  TUT.seen[TUT.cur] = 1; TUT.cur = null; $('#coach').hidden = true; saveTut();
+}
+$('#coachOk').addEventListener('click', () => coachDone());
+$('#coachSkip').addEventListener('click', () => { TUT.off = true; TUT.cur = null; $('#coach').hidden = true; saveTut(); showTut(); });
+const showTut = () => { $('#mTutV').textContent = TUT.off ? 'ปิด' : 'เปิด'; };
+$('#mTut').addEventListener('click', () => { TUT.off = !TUT.off; if (!TUT.off) TUT.seen = {}; else { TUT.cur = null; $('#coach').hidden = true; } saveTut(); showTut(); });
+showTut();
+
 /* ---------- sound: synthesized, no audio files ---------- */
 const SND = {ctx:null, on:true};
 try { SND.on = localStorage.getItem('samphop-sound')!=='off'; } catch(e){}
@@ -1738,7 +1798,7 @@ const PRESETS = {
   trick:{name:'เล่ห์กลพราน', tag:'กับดัก · เดาใจ', tc:'#e6b8ff', desc:'วางกับดักดักทางศัตรู ซุ่มโจมตีด้วยเสือสมิง และยิงเลือดตรง ๆ เมื่อเดาถูกว่าศัตรูไม่มา',
     ids:['yantrap','takrut','karawek','nakabat','lak','nammon','lumphrang','suea','yak','ngueak','phirun','indra']},
   wind:{name:'กองทัพวายุ', tag:'ธาตุลม · เรียกพล', tc:'#4cc39b', desc:'จั่วไว เรียกการ์ดเสริมลงสนาม และมโนราห์ให้ธาตุลมทุกภพแรงขึ้น',
-    ids:['kinnaree','karawek','goldfish','hanuman','nangkwak','lak','manohra','aphai','ongkot','ngueak','erawan','indra']},
+    ids:['kinnaree','karawek','phosop','hanuman','nangkwak','lak','manohra','aphai','ongkot','garuda','erawan','indra']},
 };
 const ROLE = {
   destroy:new Set(['blackcat','pob','agni','garuda','pranbun','chalawan','kongkoi','aphai','phirun','indra','yak']),
